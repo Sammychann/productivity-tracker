@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { Droplets, Flame, Beef, Moon, Dumbbell, TrendingUp, TrendingDown, Plus } from "lucide-react";
 import { BarChart, Bar, LineChart, Line, ResponsiveContainer, Tooltip, XAxis, YAxis, ReferenceLine } from "recharts";
 import { RingProgress } from "@/components/RingProgress";
+import { ActivityHeatmap } from "@/components/ActivityHeatmap";
 import { storage, type DailyLog } from "@/lib/storage";
 import { useHealthTargets, useDailyLog, useSchedule, useWeightLogs, useGoals, useStore } from "@/hooks/use-storage";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -243,6 +244,11 @@ export default function Dashboard() {
           </div>
         </motion.div>
       )}
+
+      {/* Heatmap */}
+      <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.14 }}>
+        <ActivityHeatmap />
+      </motion.div>
 
       {/* Charts */}
       <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.16 }}
