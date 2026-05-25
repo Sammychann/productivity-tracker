@@ -153,9 +153,14 @@ export default function Dashboard() {
         <p className="text-sm mt-0.5" style={{ color: "#555" }}>{format(new Date(), "MMMM d, yyyy")}</p>
       </motion.div>
 
+      {/* Heatmap */}
+      <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}>
+        <ActivityHeatmap />
+      </motion.div>
+
       {/* Today's Workout */}
       {todayLabel && (
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.05 }}
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.08 }}
           className="flex items-center gap-4 p-4 rounded-2xl" style={{ background: "#161616", border: "1px solid #222" }}>
           <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
             <Dumbbell className="w-5 h-5 text-primary" />
@@ -244,11 +249,6 @@ export default function Dashboard() {
           </div>
         </motion.div>
       )}
-
-      {/* Heatmap */}
-      <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.14 }}>
-        <ActivityHeatmap />
-      </motion.div>
 
       {/* Charts */}
       <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.16 }}
