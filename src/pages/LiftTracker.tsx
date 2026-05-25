@@ -118,6 +118,9 @@ export default function LiftTracker() {
     // Remove the category and all lifts in it
     const liftsInCat = lifts.filter(l => l.category === cat);
     if (liftsInCat.length > 0) {
+      if (!window.confirm(`Wait! This will also delete ${liftsInCat.length} exercise(s) inside the "${cat}" category. Are you sure?`)) {
+        return;
+      }
       storage.setLifts(lifts.filter(l => l.category !== cat));
     }
     storage.setCategories(categories.filter(c => c !== cat));
