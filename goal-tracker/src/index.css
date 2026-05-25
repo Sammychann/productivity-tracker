@@ -1,0 +1,119 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+
+  --font-sans: 'Inter', sans-serif;
+  --font-heading: 'Inter', sans-serif;
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+:root, .dark {
+  --radius: 0.875rem;
+
+  --background: 0 0% 5%;
+  --foreground: 0 0% 97%;
+
+  --border: 0 0% 11%;
+  --input: 0 0% 14%;
+  --ring: 239 84% 67%;
+
+  --card: 0 0% 7%;
+  --card-foreground: 0 0% 97%;
+
+  --popover: 0 0% 7%;
+  --popover-foreground: 0 0% 97%;
+
+  --primary: 239 84% 67%;
+  --primary-foreground: 0 0% 97%;
+
+  --secondary: 0 0% 12%;
+  --secondary-foreground: 0 0% 97%;
+
+  --muted: 0 0% 12%;
+  --muted-foreground: 0 0% 40%;
+
+  --accent: 0 0% 12%;
+  --accent-foreground: 0 0% 97%;
+
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 97%;
+
+  --sidebar: 0 0% 6%;
+  --sidebar-foreground: 0 0% 97%;
+  --sidebar-border: 0 0% 10%;
+  --sidebar-primary: 239 84% 67%;
+  --sidebar-primary-foreground: 0 0% 97%;
+  --sidebar-accent: 0 0% 10%;
+  --sidebar-accent-foreground: 0 0% 97%;
+  --sidebar-ring: 239 84% 67%;
+
+  --primary-border: hsl(239 84% 67%);
+  --secondary-border: hsl(0 0% 12%);
+  --muted-border: hsl(0 0% 12%);
+  --accent-border: hsl(239 84% 67%);
+  --destructive-border: hsl(0 84% 60%);
+  --popover-border: hsl(0 0% 11%);
+  --card-border: hsl(0 0% 11%);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  html {
+    background-color: #0d0d0d;
+  }
+
+  body {
+    background-color: #0d0d0d;
+    color: hsl(var(--foreground));
+    font-family: 'Inter', sans-serif;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+}
+
+.panel {
+  background: #111;
+  border: 1px solid #1d1d1d;
+}
