@@ -1,29 +1,16 @@
 import { supabase } from './supabase';
 import { storage } from './storage';
 
-export const SYNC_CODE_KEY = "sync_code";
-
-export function getSyncCode(): string | null {
-  return localStorage.getItem(SYNC_CODE_KEY);
-}
-
-export function setSyncCode(code: string) {
-  localStorage.setItem(SYNC_CODE_KEY, code);
-}
-
-export function generateSyncCode(): string {
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-  let code = '';
-  for (let i = 0; i < 6; i++) {
-    code += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  return code;
+// Get the authenticated user ID
+async function getUserId(): Promise<string | null> {
+  const { data: { session } } = await supabase.auth.getSession();
+  return session?.user?.id || null;
 }
 
 // Push all local data to Supabase
 export async function pushDataToCloud() {
-  const code = getSyncCode();
-  if (!code) return;
+  const userId = await getUserId();
+  if (!userId) return;
 
   const data = {
     goals_config: storage.getGoals(),
@@ -37,7 +24,7 @@ export async function pushDataToCloud() {
 
   const { error } = await supabase
     .from('sync_data')
-    .upsert({ id: code, data, updated_at: new Date().toISOString() });
+    .upsert({ id: userId, data, updated_at: new Date().toISOString() });
 
   if (error) {
     console.error("Failed to push data to cloud:", error);
@@ -47,11 +34,14 @@ export async function pushDataToCloud() {
 }
 
 // Pull data from Supabase and overwrite local data
-export async function pullDataFromCloud(code: string): Promise<boolean> {
+export async function pullDataFromCloud(): Promise<boolean> {
+  const userId = await getUserId();
+  if (!userId) return false;
+
   const { data, error } = await supabase
     .from('sync_data')
     .select('data')
-    .eq('id', code)
+    .eq('id', userId)
     .single();
 
   if (error || !data) {
@@ -69,17 +59,16 @@ export async function pullDataFromCloud(code: string): Promise<boolean> {
   if (cloudData.user_prefs) storage.setUserPrefs(cloudData.user_prefs);
   if (cloudData.lift_prs) storage.setLifts(cloudData.lift_prs);
 
-  setSyncCode(code);
   return true;
 }
 
 // Debounce helper for pushing data automatically when things change locally
 let pushTimeout: ReturnType<typeof setTimeout> | null = null;
 export function triggerCloudPush() {
-  if (!getSyncCode()) return;
   if (pushTimeout) clearTimeout(pushTimeout);
-  pushTimeout = setTimeout(() => {
-    pushDataToCloud();
+  pushTimeout = setTimeout(async () => {
+    const userId = await getUserId();
+    if (userId) pushDataToCloud();
   }, 2000); // 2 second debounce
 }
 

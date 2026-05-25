@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Trash2, Save } from "lucide-react";
+import { Trash2, Save, LogOut } from "lucide-react";
 import { storage } from "@/lib/storage";
+import { supabase } from "@/lib/supabase";
 import { useHealthTargets, useUserPrefs } from "@/hooks/use-storage";
-import { generateSyncCode, getSyncCode, setSyncCode, pushDataToCloud, pullDataFromCloud } from "@/lib/sync";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -43,8 +43,6 @@ export default function Settings() {
   const targets = useHealthTargets();
   const userPrefs = useUserPrefs();
   const [showReset, setShowReset] = useState(false);
-  const [activeSyncCode, setActiveSyncCode] = useState(getSyncCode() || "");
-  const [inputCode, setInputCode] = useState("");
 
   const [name, setName] = useState(userPrefs?.name ?? "");
   const [weightUnit, setWeightUnit] = useState<"kg" | "lbs">(userPrefs?.weightUnit ?? "kg");
@@ -73,29 +71,10 @@ export default function Settings() {
     setTimeout(() => window.location.reload(), 500);
   };
 
-  const handleGenerateCode = async () => {
-    const code = generateSyncCode();
-    setSyncCode(code);
-    setActiveSyncCode(code);
-    toast.success("Sync code generated! Pushing data to cloud...");
-    await pushDataToCloud();
-    toast.success("Data secured in cloud.");
-  };
-
-  const handleLinkDevice = async () => {
-    if (inputCode.length !== 6) {
-      toast.error("Please enter a valid 6-character code");
-      return;
-    }
-    toast.loading("Pulling data...", { id: "pull" });
-    const success = await pullDataFromCloud(inputCode);
-    if (success) {
-      setActiveSyncCode(inputCode);
-      toast.success("Device linked! Data synced.", { id: "pull" });
-      setTimeout(() => window.location.reload(), 1000);
-    } else {
-      toast.error("Failed to find data for that code.", { id: "pull" });
-    }
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    storage.clearAll();
+    window.location.href = "/";
   };
 
   return (
@@ -157,38 +136,11 @@ export default function Settings() {
         </Button>
       </Section>
 
-      {/* Cloud Sync */}
-      <Section title="Cloud Sync">
-        {activeSyncCode ? (
-          <div className="space-y-4">
-            <p className="text-sm text-white/70">Your devices are syncing using this code.</p>
-            <Field label="Active Sync Code">
-              <Input value={activeSyncCode} readOnly className={inputCls + " font-mono text-center tracking-widest text-lg text-primary"} />
-            </Field>
-          </div>
-        ) : (
-          <div className="space-y-6">
-            <div className="space-y-2">
-              <Label className="text-sm font-medium text-white/70">Device 1: Start Syncing</Label>
-              <Button onClick={handleGenerateCode} className="w-full gap-2 bg-[#161616] border border-[#222] text-white hover:bg-[#222]">
-                Generate Sync Code
-              </Button>
-            </div>
-            
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-[#222]" /></div>
-              <div className="relative flex justify-center text-xs uppercase"><span className="bg-[#111] px-2 text-[#666]">Or</span></div>
-            </div>
-
-            <div className="space-y-2">
-              <Label className="text-sm font-medium text-white/70">Device 2: Link Existing</Label>
-              <div className="flex gap-2">
-                <Input placeholder="6-digit code" value={inputCode} onChange={e => setInputCode(e.target.value.toUpperCase())} maxLength={6} className={inputCls + " font-mono uppercase tracking-widest"} />
-                <Button onClick={handleLinkDevice} className="bg-primary hover:bg-primary/90 text-primary-foreground">Link</Button>
-              </div>
-            </div>
-          </div>
-        )}
+      {/* Account Settings */}
+      <Section title="Account">
+        <Button onClick={handleLogout} variant="outline" className="w-full bg-[#161616] border-[#222] text-white hover:bg-[#222]">
+          <LogOut className="w-4 h-4 mr-2" /> Log Out
+        </Button>
       </Section>
 
       {/* Danger */}

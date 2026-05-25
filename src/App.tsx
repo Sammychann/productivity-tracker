@@ -13,13 +13,58 @@ import WeightTracker from "@/pages/WeightTracker";
 import LiftTracker from "@/pages/LiftTracker";
 import Settings from "@/pages/Settings";
 import NotFound from "@/pages/not-found";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { supabase } from "@/lib/supabase";
+import { pullDataFromCloud } from "@/lib/sync";
+import { storage } from "@/lib/storage";
+import Auth from "@/pages/Auth";
 
 const queryClient = new QueryClient();
 
 function AppInner() {
   const userPrefs = useUserPrefs();
   const [onboardingDone, setOnboardingDone] = useState(!!userPrefs);
+  const [session, setSession] = useState<any>(null);
+  const [authLoading, setAuthLoading] = useState(true);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      if (session) {
+        pullDataFromCloud().then(() => {
+          setOnboardingDone(!!storage.getUserPrefs());
+          setAuthLoading(false);
+        });
+      } else {
+        setAuthLoading(false);
+      }
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+      if (session) {
+        setAuthLoading(true);
+        pullDataFromCloud().then(() => {
+          setOnboardingDone(!!storage.getUserPrefs());
+          setAuthLoading(false);
+        });
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ background: "#0d0d0d" }}>
+        <p className="text-white/50 text-sm">Loading...</p>
+      </div>
+    );
+  }
+
+  if (!session) {
+    return <Auth />;
+  }
 
   if (!onboardingDone) {
     return <Onboarding onComplete={() => setOnboardingDone(true)} />;
