@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { storage, DEFAULT_SCHEDULE } from "@/lib/storage";
+import { pullDataFromCloud } from "@/lib/sync";
+import { toast } from "sonner";
 
 const DAYS = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"] as const;
 const DAY_LABELS: Record<string, string> = { mon: "Mon", tue: "Tue", wed: "Wed", thu: "Thu", fri: "Fri", sat: "Sat", sun: "Sun" };
@@ -22,6 +24,7 @@ export function Onboarding({ onComplete }: { onComplete: () => void }) {
   const [water, setWater] = useState("8");
   const [sleep, setSleep] = useState("8");
   const [schedule, setSchedule] = useState(DEFAULT_SCHEDULE);
+  const [syncCode, setSyncCode] = useState("");
 
   const steps = [
     { icon: User, title: "Welcome", sub: "Let's get you set up" },
@@ -38,6 +41,22 @@ export function Onboarding({ onComplete }: { onComplete: () => void }) {
 
   const next = () => step === steps.length - 1 ? finish() : setStep(s => s + 1);
   const canProceed = step === 0 ? name.trim().length > 0 : true;
+
+  const handleSync = async () => {
+    if (syncCode.length !== 6) {
+      toast.error("Please enter a valid 6-character code");
+      return;
+    }
+    toast.loading("Pulling data...", { id: "onboard-sync" });
+    const success = await pullDataFromCloud(syncCode);
+    if (success) {
+      toast.success("Device linked! Data synced.", { id: "onboard-sync" });
+      onComplete(); // Skip the rest of onboarding and load dashboard
+      setTimeout(() => window.location.reload(), 500); // Reload to ensure all states pick up the new data
+    } else {
+      toast.error("Failed to find data for that code.", { id: "onboard-sync" });
+    }
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: "#0d0d0d" }}>
@@ -127,6 +146,16 @@ export function Onboarding({ onComplete }: { onComplete: () => void }) {
           {step === steps.length - 1 ? "Get started" : "Continue"}
           <ChevronRight className="w-4 h-4 ml-1" />
         </Button>
+
+        {step === 0 && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-6 pt-6 border-t border-[#222]">
+            <Label className="text-sm font-medium mb-3 block" style={{ color: "#aaa" }}>Already have a Sync Code?</Label>
+            <div className="flex gap-2">
+              <Input placeholder="6-digit code" value={syncCode} onChange={e => setSyncCode(e.target.value.toUpperCase())} maxLength={6} className={inputCls + " font-mono uppercase tracking-widest"} style={inputStyle} />
+              <Button onClick={handleSync} className="bg-[#1d1d1d] text-white hover:bg-[#2a2a2a] border border-[#333]">Sync</Button>
+            </div>
+          </motion.div>
+        )}
       </motion.div>
     </div>
   );
