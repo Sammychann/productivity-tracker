@@ -2,8 +2,8 @@ import { useState } from "react";
 import { format } from "date-fns";
 import { motion, AnimatePresence } from "framer-motion";
 import { Check, Dumbbell, Pencil, ChevronDown, Trophy, Plus } from "lucide-react";
-import { storage, type GymSchedule, type LiftEntry, type LiftRecord, LIFT_CATEGORIES } from "@/lib/storage";
-import { useSchedule, useLifts, useUserPrefs } from "@/hooks/use-storage";
+import { storage, type GymSchedule, type LiftEntry, type LiftRecord } from "@/lib/storage";
+import { useSchedule, useLifts, useUserPrefs, useCategories } from "@/hooks/use-storage";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -24,31 +24,15 @@ const TODAY_KEY = format(new Date(), "EEE").toLowerCase() as keyof GymSchedule;
 const REST_WORDS = ["rest", "off", "recovery", "deload"];
 const isRest = (s: string) => REST_WORDS.some(r => s.toLowerCase().includes(r));
 
-const CATEGORY_COLOR: Record<string, string> = {
-  Push: "#6366f1",
-  Pull: "#22d3ee",
-  Legs: "#10b981",
-  Core: "#f97316",
-  Cardio: "#818cf8",
-};
+const PRESET_COLORS = [
+  "#6366f1", "#22d3ee", "#10b981", "#f97316", "#818cf8",
+  "#ec4899", "#f59e0b", "#14b8a6", "#8b5cf6", "#ef4444",
+  "#06b6d4", "#84cc16",
+];
 
-// Infer which lift categories match a workout label
-function inferCategories(label: string): LiftEntry["category"][] {
-  const l = label.toLowerCase();
-  if (isRest(label)) return [];
-
-  const full = l.includes("full") || l.includes("body");
-  if (full) return [...LIFT_CATEGORIES];
-
-  const cats: LiftEntry["category"][] = [];
-  if (/chest|push|bench|tricep|dip|fly|pec|shoulder|overhead|ohp|press/.test(l)) cats.push("Push");
-  if (/back|pull|row|bicep|lat|chin|curl|deadlift/.test(l)) cats.push("Pull");
-  if (/leg|squat|lunge|hamstring|glute|rdl|calv|quad|hip|romanian/.test(l)) cats.push("Legs");
-  if (/core|ab|plank|oblique|crunch/.test(l)) cats.push("Core");
-  if (/cardio|run|bike|hiit|swim|spin|treadmill/.test(l)) cats.push("Cardio");
-
-  // If nothing matched, show everything (generic "Workout" label etc)
-  return cats.length > 0 ? cats : [...LIFT_CATEGORIES];
+function getCategoryColor(cat: string, allCategories: string[]): string {
+  const idx = allCategories.indexOf(cat);
+  return PRESET_COLORS[idx % PRESET_COLORS.length];
 }
 
 function estimate1RM(weight: number, reps: number) {
@@ -67,6 +51,7 @@ export default function WeeklySchedule() {
   const schedule = useSchedule();
   const lifts = useLifts();
   const userPrefs = useUserPrefs();
+  const categories = useCategories();
   const unit = userPrefs?.weightUnit ?? "kg";
 
   const [editing, setEditing] = useState(false);
@@ -81,11 +66,21 @@ export default function WeeklySchedule() {
 
   const save = () => { storage.setSchedule(draft); setEditing(false); toast.success("Schedule saved"); };
   const cancel = () => { setDraft({ ...schedule }); setEditing(false); };
-  const trainingDays = DAYS.filter(d => !isRest(schedule[d.key])).length;
+  const trainingDays = DAYS.filter(d => !isRest(schedule[d.key].label)).length;
 
   const handleDayTap = (key: keyof GymSchedule) => {
     if (editing) return;
     setSelectedDay(prev => prev === key ? null : key);
+  };
+
+  const toggleDraftCategory = (dayKey: keyof GymSchedule, cat: string) => {
+    setDraft(d => {
+      const day = d[dayKey];
+      const cats = day.categories.includes(cat)
+        ? day.categories.filter(c => c !== cat)
+        : [...day.categories, cat];
+      return { ...d, [dayKey]: { ...day, categories: cats } };
+    });
   };
 
   const handleLog = () => {
@@ -155,11 +150,12 @@ export default function WeeklySchedule() {
       <div className="rounded-2xl overflow-hidden" style={{ border: "1px solid #1d1d1d" }}>
         {DAYS.map((day, i) => {
           const isToday = day.key === TODAY_KEY;
-          const label = editing ? draft[day.key] : schedule[day.key];
+          const dayData = editing ? draft[day.key] : schedule[day.key];
+          const label = dayData.label;
+          const dayCats = dayData.categories;
           const rest = isRest(label);
           const isSelected = selectedDay === day.key;
-          const categories = inferCategories(label);
-          const dayLifts = lifts.filter(l => categories.includes(l.category));
+          const dayLifts = lifts.filter(l => dayCats.includes(l.category));
 
           return (
             <motion.div key={day.key} initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }}
@@ -189,8 +185,8 @@ export default function WeeklySchedule() {
 
                 {/* Label or input */}
                 {editing ? (
-                  <Input value={draft[day.key]}
-                    onChange={e => setDraft(d => ({ ...d, [day.key]: e.target.value }))}
+                  <Input value={draft[day.key].label}
+                    onChange={e => setDraft(d => ({ ...d, [day.key]: { ...d[day.key], label: e.target.value } }))}
                     onClick={e => e.stopPropagation()}
                     className="flex-1 h-9 border-[#222] text-white text-sm"
                     style={{ background: "#161616" }} />
@@ -201,11 +197,11 @@ export default function WeeklySchedule() {
                   </p>
                 )}
 
-                {/* Category pills (non-edit, non-rest) */}
-                {!editing && !rest && categories.length <= 3 && (
+                {/* Category pills */}
+                {!editing && !rest && dayCats.length > 0 && (
                   <div className="flex gap-1 shrink-0">
-                    {categories.map(cat => (
-                      <div key={cat} className="w-1.5 h-1.5 rounded-full" style={{ background: CATEGORY_COLOR[cat] }} />
+                    {dayCats.map(cat => (
+                      <div key={cat} className="w-1.5 h-1.5 rounded-full" style={{ background: getCategoryColor(cat, categories) }} />
                     ))}
                   </div>
                 )}
@@ -217,6 +213,27 @@ export default function WeeklySchedule() {
                 )}
               </div>
 
+              {/* Category selector (edit mode) */}
+              {editing && (
+                <div className="px-4 pb-3 pt-0" style={{ background: "#111" }}>
+                  <div className="flex flex-wrap gap-1.5">
+                    {categories.map(cat => {
+                      const color = getCategoryColor(cat, categories);
+                      const active = draft[day.key].categories.includes(cat);
+                      return (
+                        <button key={cat} onClick={() => toggleDraftCategory(day.key, cat)}
+                          className="px-2.5 py-1 rounded-md text-[10px] font-semibold transition-all"
+                          style={{
+                            background: active ? color + "20" : "#161616",
+                            border: `1px solid ${active ? color + "50" : "#222"}`,
+                            color: active ? color : "#444",
+                          }}>{cat}</button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
               {/* Expanded lift panel */}
               <AnimatePresence>
                 {isSelected && !rest && !editing && (
@@ -226,9 +243,9 @@ export default function WeeklySchedule() {
                     <div className="px-4 py-4 space-y-3">
                       {/* Category group header */}
                       <div className="flex items-center gap-2">
-                        {categories.map(cat => (
+                        {dayCats.map(cat => (
                           <span key={cat} className="text-[10px] font-semibold px-2 py-0.5 rounded-full"
-                            style={{ background: CATEGORY_COLOR[cat] + "15", color: CATEGORY_COLOR[cat] }}>
+                            style={{ background: getCategoryColor(cat, categories) + "15", color: getCategoryColor(cat, categories) }}>
                             {cat}
                           </span>
                         ))}
@@ -241,14 +258,12 @@ export default function WeeklySchedule() {
                         <div className="space-y-1">
                           {dayLifts.map(lift => {
                             const pr = getPR(lift.records);
-                            const color = CATEGORY_COLOR[lift.category];
+                            const color = getCategoryColor(lift.category, categories);
                             return (
                               <div key={lift.id}
                                 className="flex items-center gap-3 px-3 py-2.5 rounded-xl"
                                 style={{ background: "#111" }}>
-                                {/* PR indicator */}
                                 <div className="w-1 h-8 rounded-full shrink-0" style={{ background: color + "40" }} />
-
                                 <div className="flex-1 min-w-0">
                                   <p className="text-sm font-medium text-white">{lift.name}</p>
                                   {pr ? (
@@ -265,7 +280,6 @@ export default function WeeklySchedule() {
                                     <p className="text-[11px] mt-0.5" style={{ color: "#333" }}>No records yet</p>
                                   )}
                                 </div>
-
                                 <button
                                   onClick={() => { setLogLiftId(lift.id); setLogDate(format(new Date(), "yyyy-MM-dd")); }}
                                   className="px-3 h-7 rounded-lg text-[11px] font-semibold transition-colors shrink-0"
@@ -278,7 +292,9 @@ export default function WeeklySchedule() {
                         </div>
                       ) : (
                         <p className="text-[12px] py-2" style={{ color: "#2a2a2a" }}>
-                          No matching exercises — add some in Lifts
+                          {dayCats.length === 0
+                            ? "No categories assigned — tap Edit to add some"
+                            : "No matching exercises — add some in Lifts"}
                         </p>
                       )}
                     </div>

@@ -10,14 +10,20 @@ export const GoalConfigSchema = z.object({
 });
 export type GoalConfig = z.infer<typeof GoalConfigSchema>;
 
+export const DayScheduleSchema = z.object({
+  label: z.string(),
+  categories: z.array(z.string()).default([]),
+});
+export type DaySchedule = z.infer<typeof DayScheduleSchema>;
+
 export const GymScheduleSchema = z.object({
-  mon: z.string(),
-  tue: z.string(),
-  wed: z.string(),
-  thu: z.string(),
-  fri: z.string(),
-  sat: z.string(),
-  sun: z.string(),
+  mon: DayScheduleSchema,
+  tue: DayScheduleSchema,
+  wed: DayScheduleSchema,
+  thu: DayScheduleSchema,
+  fri: DayScheduleSchema,
+  sat: DayScheduleSchema,
+  sun: DayScheduleSchema,
 });
 export type GymSchedule = z.infer<typeof GymScheduleSchema>;
 
@@ -64,12 +70,12 @@ export type LiftRecord = z.infer<typeof LiftRecordSchema>;
 export const LiftEntrySchema = z.object({
   id: z.string(),
   name: z.string(),
-  category: z.enum(["Push", "Pull", "Legs", "Core", "Cardio"]),
+  category: z.string(),
   records: z.array(LiftRecordSchema),
 });
 export type LiftEntry = z.infer<typeof LiftEntrySchema>;
 
-export const LIFT_CATEGORIES = ["Push", "Pull", "Legs", "Core", "Cardio"] as const;
+export const DEFAULT_CATEGORIES = ["Push", "Pull", "Legs", "Core", "Cardio"] as const;
 
 export const DEFAULT_GOALS: GoalConfig[] = [
   { id: "read", name: "Reading", unit: "pages", target: 10, icon: "book-open", color: "#6366f1" },
@@ -77,13 +83,13 @@ export const DEFAULT_GOALS: GoalConfig[] = [
 ];
 
 export const DEFAULT_SCHEDULE: GymSchedule = {
-  mon: "Chest Day",
-  tue: "Back & Biceps",
-  wed: "Rest",
-  thu: "Legs",
-  fri: "Shoulders & Triceps",
-  sat: "Full Body / Cardio",
-  sun: "Rest",
+  mon: { label: "Chest Day", categories: ["Push"] },
+  tue: { label: "Back & Biceps", categories: ["Pull"] },
+  wed: { label: "Rest", categories: [] },
+  thu: { label: "Legs", categories: ["Legs"] },
+  fri: { label: "Shoulders & Triceps", categories: ["Push"] },
+  sat: { label: "Full Body / Cardio", categories: ["Push", "Pull", "Legs", "Core", "Cardio"] },
+  sun: { label: "Rest", categories: [] },
 };
 
 export const DEFAULT_TARGETS: HealthTargets = {
@@ -122,8 +128,22 @@ export const storage = {
   getGoals: () => get<GoalConfig[]>("goals_config", DEFAULT_GOALS),
   setGoals: (goals: GoalConfig[]) => set("goals_config", goals),
 
-  getSchedule: () => get<GymSchedule>("gym_schedule", DEFAULT_SCHEDULE),
+  getSchedule: (): GymSchedule => {
+    const raw = get<any>("gym_schedule", null);
+    // Migrate old format (string values) to new format ({label, categories})
+    if (raw && typeof raw.mon === "string") {
+      const migrated: any = {};
+      for (const key of Object.keys(raw)) {
+        migrated[key] = { label: raw[key], categories: [] };
+      }
+      return migrated as GymSchedule;
+    }
+    return raw || DEFAULT_SCHEDULE;
+  },
   setSchedule: (schedule: GymSchedule) => set("gym_schedule", schedule),
+
+  getCategories: () => get<string[]>("lift_categories", [...DEFAULT_CATEGORIES]),
+  setCategories: (cats: string[]) => set("lift_categories", cats),
 
   getDailyLogs: () => get<Record<string, DailyLog>>("daily_logs", {}),
   setDailyLogs: (logs: Record<string, DailyLog>) => set("daily_logs", logs),
@@ -150,7 +170,7 @@ export const storage = {
   setLifts: (lifts: LiftEntry[]) => set("lift_prs", lifts),
 
   clearAll: () => {
-    ["goals_config", "gym_schedule", "daily_logs", "weight_logs", "health_targets", "user_prefs", "lift_prs"]
+    ["goals_config", "gym_schedule", "daily_logs", "weight_logs", "health_targets", "user_prefs", "lift_prs", "lift_categories"]
       .forEach((k) => localStorage.removeItem(k));
     window.dispatchEvent(new Event("storage:cleared"));
   },

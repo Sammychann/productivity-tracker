@@ -47,3 +47,7 @@ export function useWeightLogs() {
 export function useLifts() {
   return useStore("lift_prs", storage.getLifts);
 }
+
+export function useCategories() {
+  return useStore("lift_categories", storage.getCategories);
+}

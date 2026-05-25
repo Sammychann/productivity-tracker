@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { format, parseISO, differenceInDays } from "date-fns";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus, Trash2, ChevronDown, ChevronUp, TrendingUp, Trophy } from "lucide-react";
+import { Plus, Trash2, ChevronDown, ChevronUp, TrendingUp, Trophy, X } from "lucide-react";
 import { BarChart, Bar, ResponsiveContainer, XAxis, YAxis, Tooltip } from "recharts";
-import { storage, type LiftEntry, type LiftRecord, LIFT_CATEGORIES } from "@/lib/storage";
-import { useLifts, useUserPrefs } from "@/hooks/use-storage";
+import { storage, type LiftEntry, type LiftRecord } from "@/lib/storage";
+import { useLifts, useUserPrefs, useCategories } from "@/hooks/use-storage";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,18 +12,21 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
-const CATEGORY_COLOR: Record<string, string> = {
-  Push: "#6366f1",
-  Pull: "#22d3ee",
-  Legs: "#10b981",
-  Core: "#f97316",
-  Cardio: "#818cf8",
-};
+const PRESET_COLORS = [
+  "#6366f1", "#22d3ee", "#10b981", "#f97316", "#818cf8",
+  "#ec4899", "#f59e0b", "#14b8a6", "#8b5cf6", "#ef4444",
+  "#06b6d4", "#84cc16",
+];
+
+function getCategoryColor(cat: string, allCategories: string[]): string {
+  const idx = allCategories.indexOf(cat);
+  return PRESET_COLORS[idx % PRESET_COLORS.length];
+}
 
 function getPR(records: LiftRecord[]) {
   if (!records.length) return null;
   return records.reduce((best, r) => {
-    const score = r.weight * (1 + r.reps / 30); // Epley-like 1RM estimate
+    const score = r.weight * (1 + r.reps / 30);
     const bestScore = best.weight * (1 + best.reps / 30);
     return score > bestScore ? r : best;
   }, records[0]);
@@ -46,11 +49,13 @@ const inputStyle = { background: "#161616" };
 export default function LiftTracker() {
   const lifts = useLifts();
   const userPrefs = useUserPrefs();
+  const categories = useCategories();
   const unit = userPrefs?.weightUnit ?? "kg";
 
   const [expanded, setExpanded] = useState<string | null>(null);
   const [logLiftId, setLogLiftId] = useState<string | null>(null);
   const [showAddLift, setShowAddLift] = useState(false);
+  const [showAddCategory, setShowAddCategory] = useState(false);
 
   // Log form
   const [logWeight, setLogWeight] = useState("");
@@ -60,9 +65,12 @@ export default function LiftTracker() {
 
   // Add lift form
   const [newName, setNewName] = useState("");
-  const [newCategory, setNewCategory] = useState<LiftEntry["category"]>("Push");
+  const [newCategory, setNewCategory] = useState(categories[0] || "Push");
 
-  const grouped = LIFT_CATEGORIES.reduce<Record<string, LiftEntry[]>>((acc, cat) => {
+  // Add category form
+  const [newCatName, setNewCatName] = useState("");
+
+  const grouped = categories.reduce<Record<string, LiftEntry[]>>((acc, cat) => {
     acc[cat] = lifts.filter(l => l.category === cat);
     return acc;
   }, {} as Record<string, LiftEntry[]>);
@@ -90,7 +98,30 @@ export default function LiftTracker() {
     if (!newName.trim()) return;
     storage.setLifts([...lifts, { id: crypto.randomUUID(), name: newName.trim(), category: newCategory, records: [] }]);
     toast.success("Lift added");
-    setShowAddLift(false); setNewName(""); setNewCategory("Push");
+    setShowAddLift(false); setNewName(""); setNewCategory(categories[0] || "Push");
+  };
+
+  const handleAddCategory = () => {
+    const name = newCatName.trim();
+    if (!name) return;
+    if (categories.includes(name)) {
+      toast.error("Category already exists");
+      return;
+    }
+    storage.setCategories([...categories, name]);
+    toast.success(`"${name}" category added`);
+    setNewCatName("");
+    setShowAddCategory(false);
+  };
+
+  const handleDeleteCategory = (cat: string) => {
+    // Remove the category and all lifts in it
+    const liftsInCat = lifts.filter(l => l.category === cat);
+    if (liftsInCat.length > 0) {
+      storage.setLifts(lifts.filter(l => l.category !== cat));
+    }
+    storage.setCategories(categories.filter(c => c !== cat));
+    toast.success(`"${cat}" removed`);
   };
 
   const handleDelete = (id: string) => {
@@ -104,8 +135,6 @@ export default function LiftTracker() {
   };
 
   const logLift = lifts.find(l => l.id === logLiftId);
-
-  // Total PRs logged across all lifts
   const totalSessions = lifts.reduce((sum, l) => sum + l.records.length, 0);
 
   return (
@@ -117,9 +146,15 @@ export default function LiftTracker() {
           <h1 className="text-3xl font-bold text-white tracking-tight">Lifts</h1>
           <p className="text-sm mt-0.5" style={{ color: "#555" }}>Personal records</p>
         </div>
-        <Button onClick={() => setShowAddLift(true)} size="sm" className="gap-2 bg-primary hover:bg-primary/90">
-          <Plus className="w-4 h-4" /> Add lift
-        </Button>
+        <div className="flex gap-2">
+          <Button onClick={() => setShowAddCategory(true)} size="sm" variant="outline"
+            className="gap-2 border-[#222] text-[#888] hover:bg-white/[0.04] hover:text-white">
+            <Plus className="w-4 h-4" /> Category
+          </Button>
+          <Button onClick={() => setShowAddLift(true)} size="sm" className="gap-2 bg-primary hover:bg-primary/90">
+            <Plus className="w-4 h-4" /> Add lift
+          </Button>
+        </div>
       </motion.div>
 
       {/* Summary */}
@@ -139,10 +174,10 @@ export default function LiftTracker() {
       </div>
 
       {/* Category sections */}
-      {LIFT_CATEGORIES.map((cat, ci) => {
-        const catLifts = grouped[cat];
+      {categories.map((cat, ci) => {
+        const catLifts = grouped[cat] || [];
         if (!catLifts.length) return null;
-        const color = CATEGORY_COLOR[cat];
+        const color = getCategoryColor(cat, categories);
 
         return (
           <motion.div key={cat} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
@@ -165,7 +200,6 @@ export default function LiftTracker() {
                 }));
                 const daysSince = latest ? differenceInDays(new Date(), parseISO(latest.date)) : null;
 
-                // Trend: is latest 1RM higher than previous?
                 let trending: "up" | "down" | null = null;
                 if (sorted.length >= 2) {
                   const last1RM = estimate1RM(sorted[sorted.length - 1].weight, sorted[sorted.length - 1].reps);
@@ -177,7 +211,6 @@ export default function LiftTracker() {
                   <div key={lift.id} style={{ borderTop: i > 0 ? "1px solid #1a1a1a" : "none" }}>
                     {/* Main row */}
                     <div className="flex items-center gap-3 px-4 py-4" style={{ background: "#111" }}>
-                      {/* PR display */}
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
                           <p className="text-sm font-semibold text-white">{lift.name}</p>
@@ -202,7 +235,6 @@ export default function LiftTracker() {
                         )}
                       </div>
 
-                      {/* Actions */}
                       <div className="flex items-center gap-1 shrink-0">
                         <button onClick={() => { setLogLiftId(lift.id); setLogDate(format(new Date(), "yyyy-MM-dd")); }}
                           className="px-3 h-8 rounded-lg text-xs font-semibold transition-colors"
@@ -229,7 +261,6 @@ export default function LiftTracker() {
                           exit={{ opacity: 0, height: 0 }} transition={{ duration: 0.2 }}
                           className="overflow-hidden" style={{ borderTop: "1px solid #1a1a1a", background: "#0e0e0e" }}>
                           <div className="px-4 py-4 space-y-4">
-                            {/* Chart */}
                             {chartData.length > 1 && (
                               <div>
                                 <p className="text-[10px] font-semibold uppercase tracking-widest mb-2" style={{ color: "#333" }}>
@@ -251,7 +282,6 @@ export default function LiftTracker() {
                               </div>
                             )}
 
-                            {/* Record list */}
                             {sorted.length > 0 ? (
                               <div className="space-y-1">
                                 <p className="text-[10px] font-semibold uppercase tracking-widest mb-2" style={{ color: "#333" }}>History</p>
@@ -348,7 +378,7 @@ export default function LiftTracker() {
       </Dialog>
 
       {/* Add lift modal */}
-      <Dialog open={showAddLift} onOpenChange={o => { if (!o) { setShowAddLift(false); setNewName(""); setNewCategory("Push"); } }}>
+      <Dialog open={showAddLift} onOpenChange={o => { if (!o) { setShowAddLift(false); setNewName(""); setNewCategory(categories[0] || "Push"); } }}>
         <DialogContent className="max-w-xs" style={{ background: "#111", borderColor: "#1d1d1d" }}>
           <DialogHeader>
             <DialogTitle className="text-white">Add Exercise</DialogTitle>
@@ -364,19 +394,63 @@ export default function LiftTracker() {
             <div className="space-y-1.5">
               <Label className="text-sm" style={{ color: "#888" }}>Category</Label>
               <div className="flex flex-wrap gap-2">
-                {LIFT_CATEGORIES.map(cat => (
-                  <button key={cat} onClick={() => setNewCategory(cat)}
-                    className="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all"
-                    style={{
-                      background: newCategory === cat ? CATEGORY_COLOR[cat] + "20" : "#161616",
-                      border: `1px solid ${newCategory === cat ? CATEGORY_COLOR[cat] + "50" : "#222"}`,
-                      color: newCategory === cat ? CATEGORY_COLOR[cat] : "#444",
-                    }}>{cat}</button>
-                ))}
+                {categories.map(cat => {
+                  const color = getCategoryColor(cat, categories);
+                  return (
+                    <button key={cat} onClick={() => setNewCategory(cat)}
+                      className="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all"
+                      style={{
+                        background: newCategory === cat ? color + "20" : "#161616",
+                        border: `1px solid ${newCategory === cat ? color + "50" : "#222"}`,
+                        color: newCategory === cat ? color : "#444",
+                      }}>{cat}</button>
+                  );
+                })}
               </div>
             </div>
             <Button onClick={handleAddLift} disabled={!newName.trim()} className="w-full bg-primary hover:bg-primary/90">
               Add
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Add category modal */}
+      <Dialog open={showAddCategory} onOpenChange={o => { if (!o) { setShowAddCategory(false); setNewCatName(""); } }}>
+        <DialogContent className="max-w-xs" style={{ background: "#111", borderColor: "#1d1d1d" }}>
+          <DialogHeader>
+            <DialogTitle className="text-white">Manage Categories</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 pt-1">
+            {/* Existing categories */}
+            <div className="space-y-2">
+              <Label className="text-sm" style={{ color: "#888" }}>Current categories</Label>
+              <div className="flex flex-wrap gap-2">
+                {categories.map(cat => {
+                  const color = getCategoryColor(cat, categories);
+                  return (
+                    <div key={cat} className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold"
+                      style={{ background: color + "15", color, border: `1px solid ${color}30` }}>
+                      {cat}
+                      <button onClick={() => handleDeleteCategory(cat)}
+                        className="ml-0.5 hover:opacity-70 transition-opacity">
+                        <X className="w-3 h-3" />
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+            {/* Add new */}
+            <div className="space-y-1.5">
+              <Label className="text-sm" style={{ color: "#888" }}>New category name</Label>
+              <Input placeholder="e.g. Shoulders, Arms, Olympic…" value={newCatName}
+                onChange={e => setNewCatName(e.target.value)}
+                onKeyDown={e => e.key === "Enter" && handleAddCategory()}
+                className={inputCls} style={inputStyle} autoFocus />
+            </div>
+            <Button onClick={handleAddCategory} disabled={!newCatName.trim()} className="w-full bg-primary hover:bg-primary/90">
+              Add Category
             </Button>
           </div>
         </DialogContent>

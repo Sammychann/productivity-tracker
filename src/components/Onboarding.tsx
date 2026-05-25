@@ -115,7 +115,7 @@ export function Onboarding({ onComplete }: { onComplete: () => void }) {
               {DAYS.map(day => (
                 <div key={day} className="flex items-center gap-3">
                   <span className="w-9 text-xs font-bold uppercase shrink-0" style={{ color: "#444" }}>{DAY_LABELS[day]}</span>
-                  <Input value={schedule[day]} onChange={e => setSchedule(s => ({ ...s, [day]: e.target.value }))}
+                  <Input value={schedule[day].label} onChange={e => setSchedule(s => ({ ...s, [day]: { ...s[day], label: e.target.value } }))}
                     className="flex-1 h-9 border-[#222] text-white text-sm" style={{ background: "#161616" }} />
                 </div>
               ))}
