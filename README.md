@@ -1,66 +1,29 @@
 # 🎯 Goal & Health Tracker
 
-A premium, state-of-the-art Goal and Health Tracker built with React, Vite, TypeScript, and Tailwind CSS. This application helps you keep track of daily habits, weekly gym schedules, water intake, calories, sleep, and personal records for weightlifting, all locally stored and fully private in your browser.
+A premium, state-of-the-art Goal and Health Tracker designed to help you stay on top of your daily habits, weekly gym schedules, and fitness progress. 
+
+No setup required—it is live and ready to use!
+
+## 🚀 Live App
+
+👉 **[Start tracking your progress here: productivity-tracker-6hqe.vercel.app](https://productivity-tracker-6hqe.vercel.app/)**
+
+Simply click the link above, create an account, and start logging your workouts and daily habits. Your data is safely synced to the cloud so you can access it on your phone, tablet, or computer.
 
 ## ✨ Features
 
 - **📊 Dashboard**: High-level overview of daily goals progress, gym schedule, calories, protein, water, and sleep.
-- **🎯 Daily Goals**: Custom goal configuration (reading, steps, etc.) with completion rings.
-- **📅 Weekly Schedule**: Interactive planner for your weekly workouts and routines.
-- **💧 Health Tracker**: Easy logging for water, calories, protein, and sleep with progress visualizations and 7-day history charts.
-- **🏋️ Lift Tracker**: Log workouts, estimate 1RM (One Rep Max) using Epley's formula, view history charts, and track personal records (PRs).
-- **⚙️ Settings**: Personalize your profile, select weight units (kg/lbs), adjust daily targets, and manage your data.
-- **🔒 Privacy First**: All data is saved directly in your browser's local storage—no sign-up or remote servers required.
+- **📈 GitHub-Style Heatmap**: Visualize your year-long consistency at a glance.
+- **🎯 Daily Goals**: Custom goal configuration (reading, meditation, etc.) with streak tracking and completion rings.
+- **📅 Weekly Schedule**: Interactive planner for your weekly workouts with customizable categories.
+- **💧 Health Tracker**: Easy logging for water, calories, protein, and sleep with progress visualizations and history charts.
+- **🏋️ Lift Tracker**: Log workouts, track personal records (PRs), and view historical charts and estimated 1RM for every custom exercise.
+- **☁️ Cloud Sync**: Seamlessly syncs your data across all your devices in real-time.
 
 ## 🛠️ Tech Stack
 
 - **Frontend Core**: React 19, TypeScript
 - **Styling**: Tailwind CSS v4, Framer Motion (animations), Lucide React (icons)
 - **Charts**: Recharts
-- **State & Utils**: Tanstack React Query, Zod, date-fns, Sonner (toasts)
-- **Build System**: Vite v6
-
-## 🚀 Getting Started
-
-### Prerequisites
-
-- Node.js (v18.0.0 or higher recommended)
-- npm or yarn
-
-### Installation
-
-1. Clone the repository:
-   ```bash
-   git clone <your-repository-url>
-   cd goal-tracker
-   ```
-
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-
-3. Run the development server:
-   ```bash
-   npm run dev
-   ```
-
-4. Open your browser and navigate to `http://localhost:5173`.
-
-### Commands
-
-- **Development Server**: `npm run dev`
-- **Build Project**: `npm run build`
-- **Preview Build**: `npm run serve`
-- **TypeScript Check**: `npm run typecheck`
-
-## ☁️ Deployment (Vercel)
-
-This project is configured to run out-of-the-box on Vercel:
-
-1. Import your GitHub repository to Vercel.
-2. The project will automatically be recognized as a **Vite** application.
-3. Configure the following if not detected:
-   - **Build Command**: `npm run build`
-   - **Output Directory**: `dist/public`
-4. Click **Deploy**!
+- **Database & Auth**: Supabase
+- **Hosting**: Vercel
