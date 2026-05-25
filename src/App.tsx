@@ -4,7 +4,6 @@ import { Toaster } from "sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Layout } from "@/components/Layout";
 import { Onboarding } from "@/components/Onboarding";
-import { useUserPrefs } from "@/hooks/use-storage";
 import Dashboard from "@/pages/Dashboard";
 import DailyGoals from "@/pages/DailyGoals";
 import WeeklySchedule from "@/pages/WeeklySchedule";
@@ -13,65 +12,108 @@ import WeightTracker from "@/pages/WeightTracker";
 import LiftTracker from "@/pages/LiftTracker";
 import Settings from "@/pages/Settings";
 import NotFound from "@/pages/not-found";
+import Auth from "@/pages/Auth";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { pullDataFromCloud, pushDataToCloud } from "@/lib/sync";
 import { storage } from "@/lib/storage";
-import Auth from "@/pages/Auth";
 
 const queryClient = new QueryClient();
 
+/**
+ * USER FLOW:
+ * 1. App opens → "Loading..." while we check auth
+ * 2. No session → Login/Signup screen
+ * 3. Session exists, cloud has data → pull data, skip onboarding → Dashboard
+ * 4. Session exists, cloud empty, local data exists → push to cloud → Dashboard
+ * 5. Session exists, cloud empty, no local data → Onboarding → finish → push to cloud → Dashboard
+ */
 function AppInner() {
-  const userPrefs = useUserPrefs();
-  const [onboardingDone, setOnboardingDone] = useState(!!userPrefs);
-  const [session, setSession] = useState<any>(null);
-  const [authLoading, setAuthLoading] = useState(true);
+  const [session, setSession] = useState<any>(undefined); // undefined = still loading
+  const [ready, setReady] = useState(false); // true once auth + data sync is done
+  const [needsOnboarding, setNeedsOnboarding] = useState(false);
 
   useEffect(() => {
-    const handleAuth = async (session: any) => {
-      setSession(session);
-      if (session) {
-        setAuthLoading(true);
-        const hasCloudData = await pullDataFromCloud();
-        
-        // If the cloud is empty, but the user has local data (e.g. they just created an account on their laptop)
-        // We must push their local data to the cloud so their phone can access it!
-        if (!hasCloudData && storage.getUserPrefs()) {
-          await pushDataToCloud();
-        }
-        
-        setOnboardingDone(!!storage.getUserPrefs());
+    let mounted = true;
+
+    const handleSession = async (sess: any) => {
+      if (!mounted) return;
+
+      if (!sess) {
+        // Not logged in → show Auth screen
+        setSession(null);
+        setReady(true);
+        return;
       }
-      setAuthLoading(false);
+
+      setSession(sess);
+
+      // Try pulling cloud data
+      const hasCloudData = await pullDataFromCloud();
+
+      if (hasCloudData) {
+        // Cloud had data → we've loaded it into localStorage → go to dashboard
+        setNeedsOnboarding(false);
+      } else if (storage.getUserPrefs()) {
+        // No cloud data but local data exists (first login on this device with existing data)
+        // Push local data to cloud and go to dashboard
+        await pushDataToCloud();
+        setNeedsOnboarding(false);
+      } else {
+        // No cloud data, no local data → brand new user, needs onboarding
+        setNeedsOnboarding(true);
+      }
+
+      if (mounted) setReady(true);
     };
 
+    // Check for existing session on mount
     supabase.auth.getSession().then(({ data: { session } }) => {
-      handleAuth(session);
+      handleSession(session);
     });
 
+    // Listen for login/logout events
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      handleAuth(session);
+      // Reset state and re-run the flow
+      setReady(false);
+      handleSession(session);
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
-  if (authLoading) {
+  const handleOnboardingComplete = async () => {
+    // User just finished onboarding → push their new data to the cloud
+    await pushDataToCloud();
+    setNeedsOnboarding(false);
+  };
+
+  // Still checking auth or syncing data
+  if (!ready) {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ background: "#0d0d0d" }}>
-        <p className="text-white/50 text-sm">Loading...</p>
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-6 h-6 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+          <p className="text-white/40 text-sm">Loading...</p>
+        </div>
       </div>
     );
   }
 
+  // Not logged in → show Login/Signup
   if (!session) {
     return <Auth />;
   }
 
-  if (!onboardingDone) {
-    return <Onboarding onComplete={() => setOnboardingDone(true)} />;
+  // Logged in but no data anywhere → Onboarding
+  if (needsOnboarding) {
+    return <Onboarding onComplete={handleOnboardingComplete} />;
   }
 
+  // Logged in and data loaded → Dashboard
   return (
     <Layout>
       <Switch>
