@@ -99,7 +99,8 @@ export default function Dashboard() {
   const [activeModal, setActiveModal] = useState<null | "water" | "calories" | "protein" | "sleep">(null);
 
   const t = targets ?? { calories: 2500, protein: 150, water: 8, sleep: 8 };
-  const todayWorkout = schedule[WEEKDAY_KEY[format(new Date(), "EEEE")] || "mon"];
+  const todayWorkoutObj = schedule[WEEKDAY_KEY[format(new Date(), "EEEE")] || "mon"];
+  const todayLabel = typeof todayWorkoutObj === "string" ? todayWorkoutObj : todayWorkoutObj?.label;
 
   const metrics = [
     { field: "water" as const, label: "Water", unit: "gl", color: "#22d3ee", icon: <Droplets className="w-3.5 h-3.5" style={{ color: "#22d3ee" }} />, value: log.water, target: t.water },
@@ -152,7 +153,7 @@ export default function Dashboard() {
       </motion.div>
 
       {/* Today's Workout */}
-      {todayWorkout && (
+      {todayLabel && (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.05 }}
           className="flex items-center gap-4 p-4 rounded-2xl" style={{ background: "#161616", border: "1px solid #222" }}>
           <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
@@ -160,7 +161,7 @@ export default function Dashboard() {
           </div>
           <div>
             <p className="text-[11px] font-semibold uppercase tracking-widest" style={{ color: "#555" }}>Today</p>
-            <p className="text-base font-bold text-white leading-tight">{todayWorkout}</p>
+            <p className="text-base font-bold text-white leading-tight">{todayLabel}</p>
           </div>
         </motion.div>
       )}
