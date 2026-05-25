@@ -15,7 +15,7 @@ import Settings from "@/pages/Settings";
 import NotFound from "@/pages/not-found";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
-import { pullDataFromCloud } from "@/lib/sync";
+import { pullDataFromCloud, pushDataToCloud } from "@/lib/sync";
 import { storage } from "@/lib/storage";
 import Auth from "@/pages/Auth";
 
@@ -28,27 +28,29 @@ function AppInner() {
   const [authLoading, setAuthLoading] = useState(true);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      if (session) {
-        pullDataFromCloud().then(() => {
-          setOnboardingDone(!!storage.getUserPrefs());
-          setAuthLoading(false);
-        });
-      } else {
-        setAuthLoading(false);
-      }
-    });
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const handleAuth = async (session: any) => {
       setSession(session);
       if (session) {
         setAuthLoading(true);
-        pullDataFromCloud().then(() => {
-          setOnboardingDone(!!storage.getUserPrefs());
-          setAuthLoading(false);
-        });
+        const hasCloudData = await pullDataFromCloud();
+        
+        // If the cloud is empty, but the user has local data (e.g. they just created an account on their laptop)
+        // We must push their local data to the cloud so their phone can access it!
+        if (!hasCloudData && storage.getUserPrefs()) {
+          await pushDataToCloud();
+        }
+        
+        setOnboardingDone(!!storage.getUserPrefs());
       }
+      setAuthLoading(false);
+    };
+
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      handleAuth(session);
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      handleAuth(session);
     });
 
     return () => subscription.unsubscribe();
