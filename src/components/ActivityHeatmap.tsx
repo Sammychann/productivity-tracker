@@ -40,9 +40,8 @@ export function ActivityHeatmap() {
   const { grid, monthLabels } = useMemo(() => {
     const today = new Date();
     
-    // Determine start and end date for the grid based on selected year
     const yearStart = startOfYear(new Date(selectedYear, 0, 1));
-    const yearEnd = selectedYear === currentYear ? today : endOfYear(new Date(selectedYear, 0, 1));
+    const yearEnd = endOfYear(new Date(selectedYear, 0, 1));
     
     const gridStart = startOfWeek(yearStart);
     const gridEnd = endOfWeek(yearEnd);
@@ -155,20 +154,20 @@ export function ActivityHeatmap() {
             
             {/* Month labels */}
             {monthLabels.map((lbl, i) => (
-              <span key={i} className="absolute top-0 text-[10px] font-medium" style={{ color: "#555", left: `${lbl.colIndex * 8}px` }}>
+              <span key={i} className="absolute top-0 text-[10px] font-medium" style={{ color: "#555", left: `${lbl.colIndex * 16}px` }}>
                 {lbl.text}
               </span>
             ))}
 
             <TooltipProvider delayDuration={100}>
-              <div className="flex gap-[2px]">
+              <div className="flex gap-1">
                 {grid.map((col, cIdx) => (
-                  <div key={cIdx} className="flex flex-col gap-[2px] snap-end">
+                  <div key={cIdx} className="flex flex-col gap-1 snap-end">
                     {col.map((cell, rIdx) => (
                       <Tooltip key={cell.dateStr}>
                         <TooltipTrigger asChild>
                           <div 
-                            className="w-[6px] h-[6px] rounded-[1px] transition-colors"
+                            className="w-3 h-3 rounded-[3px] transition-colors"
                             style={{ 
                               background: getLevelColor(cell.level),
                               border: cell.level === 0 ? "1px solid #222" : "none"
