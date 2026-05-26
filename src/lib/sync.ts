@@ -19,9 +19,7 @@ export async function pushDataToCloud() {
     weight_logs: storage.getWeightLogs(),
     health_targets: storage.getTargets(),
     user_prefs: storage.getUserPrefs(),
-    lift_prs: storage.getLifts(),
-    lift_categories: storage.getCategories(),
-    dsa_problems: storage.getDSA(),
+    trackers: storage.getTrackers(),
   };
 
   const { error } = await supabase
@@ -59,9 +57,9 @@ export async function pullDataFromCloud(): Promise<boolean> {
   if (cloudData.weight_logs) storage.setWeightLogs(cloudData.weight_logs);
   if (cloudData.health_targets) storage.setTargets(cloudData.health_targets);
   if (cloudData.user_prefs) storage.setUserPrefs(cloudData.user_prefs);
-  if (cloudData.lift_prs) storage.setLifts(cloudData.lift_prs);
-  if (cloudData.lift_categories) storage.setCategories(cloudData.lift_categories);
-  if (cloudData.dsa_problems) storage.setDSA(cloudData.dsa_problems);
+  if (cloudData.trackers) storage.setTrackers(cloudData.trackers);
+  if (cloudData.lift_prs) localStorage.setItem("lift_prs", JSON.stringify(cloudData.lift_prs));
+  if (cloudData.dsa_problems) localStorage.setItem("dsa_problems", JSON.stringify(cloudData.dsa_problems));
 
   return true;
 }
@@ -85,9 +83,7 @@ export function initAutoSync() {
     "weight_logs", 
     "health_targets", 
     "user_prefs", 
-    "lift_prs",
-    "lift_categories",
-    "dsa_problems"
+    "trackers"
   ];
   
   storageKeys.forEach(key => {
