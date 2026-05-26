@@ -21,6 +21,7 @@ export async function pushDataToCloud() {
     user_prefs: storage.getUserPrefs(),
     lift_prs: storage.getLifts(),
     lift_categories: storage.getCategories(),
+    dsa_problems: storage.getDSA(),
   };
 
   const { error } = await supabase
@@ -60,6 +61,7 @@ export async function pullDataFromCloud(): Promise<boolean> {
   if (cloudData.user_prefs) storage.setUserPrefs(cloudData.user_prefs);
   if (cloudData.lift_prs) storage.setLifts(cloudData.lift_prs);
   if (cloudData.lift_categories) storage.setCategories(cloudData.lift_categories);
+  if (cloudData.dsa_problems) storage.setDSA(cloudData.dsa_problems);
 
   return true;
 }
@@ -84,7 +86,8 @@ export function initAutoSync() {
     "health_targets", 
     "user_prefs", 
     "lift_prs",
-    "lift_categories"
+    "lift_categories",
+    "dsa_problems"
   ];
   
   storageKeys.forEach(key => {

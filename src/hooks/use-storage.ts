@@ -51,3 +51,7 @@ export function useLifts() {
 export function useCategories() {
   return useStore("lift_categories", storage.getCategories);
 }
+
+export function useDSA() {
+  return useStore("dsa_problems", storage.getDSA);
+}

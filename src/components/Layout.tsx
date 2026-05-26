@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { LayoutDashboard, Target, Calendar, Heart, Scale, Settings, Trophy } from "lucide-react";
+import { LayoutDashboard, Target, Calendar, Heart, Scale, Settings, Trophy, Code2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const navItems = [
@@ -9,11 +9,12 @@ const navItems = [
   { href: "/health", label: "Health", icon: Heart },
   { href: "/weight", label: "Weight", icon: Scale },
   { href: "/lifts", label: "Lifts", icon: Trophy },
+  { href: "/dsa", label: "DSA", icon: Code2 },
   { href: "/settings", label: "Settings", icon: Settings },
 ];
 
-// Mobile nav: first 6 items (drop Settings — accessible from sidebar on desktop)
-const mobileNav = navItems.slice(0, 6);
+// Mobile nav: first 7 items (drop Settings — accessible from sidebar on desktop)
+const mobileNav = navItems.slice(0, 7);
 
 export function Layout({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();

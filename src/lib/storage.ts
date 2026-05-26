@@ -75,7 +75,36 @@ export const LiftEntrySchema = z.object({
 });
 export type LiftEntry = z.infer<typeof LiftEntrySchema>;
 
+// DSA Problem Tracker
+export const DSAProblemSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  difficulty: z.enum(["Easy", "Medium", "Hard"]).optional(),
+  url: z.string().optional(),
+  date: z.string(),
+  notes: z.string().optional(),
+});
+export type DSAProblem = z.infer<typeof DSAProblemSchema>;
+
+export const DSACategorySchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  problems: z.array(DSAProblemSchema),
+});
+export type DSACategory = z.infer<typeof DSACategorySchema>;
+
 export const DEFAULT_CATEGORIES = ["Push", "Pull", "Legs", "Core", "Cardio"] as const;
+
+export const DEFAULT_DSA_CATEGORIES: DSACategory[] = [
+  { id: "arrays", name: "Arrays", problems: [] },
+  { id: "strings", name: "Strings", problems: [] },
+  { id: "linked-lists", name: "Linked Lists", problems: [] },
+  { id: "trees", name: "Trees", problems: [] },
+  { id: "graphs", name: "Graphs", problems: [] },
+  { id: "dp", name: "Dynamic Programming", problems: [] },
+  { id: "stacks-queues", name: "Stacks & Queues", problems: [] },
+  { id: "hashmaps", name: "Hash Maps", problems: [] },
+];
 
 export const DEFAULT_GOALS: GoalConfig[] = [
   { id: "read", name: "Reading", unit: "pages", target: 10, icon: "book-open", color: "#6366f1" },
@@ -169,8 +198,11 @@ export const storage = {
   getLifts: () => get<LiftEntry[]>("lift_prs", DEFAULT_LIFTS),
   setLifts: (lifts: LiftEntry[]) => set("lift_prs", lifts),
 
+  getDSA: () => get<DSACategory[]>("dsa_problems", DEFAULT_DSA_CATEGORIES),
+  setDSA: (data: DSACategory[]) => set("dsa_problems", data),
+
   clearAll: () => {
-    ["goals_config", "gym_schedule", "daily_logs", "weight_logs", "health_targets", "user_prefs", "lift_prs", "lift_categories"]
+    ["goals_config", "gym_schedule", "daily_logs", "weight_logs", "health_targets", "user_prefs", "lift_prs", "lift_categories", "dsa_problems"]
       .forEach((k) => localStorage.removeItem(k));
     window.dispatchEvent(new Event("storage:cleared"));
   },

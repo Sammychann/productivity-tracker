@@ -10,6 +10,7 @@ import WeeklySchedule from "@/pages/WeeklySchedule";
 import HealthTracker from "@/pages/HealthTracker";
 import WeightTracker from "@/pages/WeightTracker";
 import LiftTracker from "@/pages/LiftTracker";
+import DSATracker from "@/pages/DSATracker";
 import Settings from "@/pages/Settings";
 import NotFound from "@/pages/not-found";
 import Auth from "@/pages/Auth";
@@ -123,6 +124,7 @@ function AppInner() {
         <Route path="/health" component={HealthTracker} />
         <Route path="/weight" component={WeightTracker} />
         <Route path="/lifts" component={LiftTracker} />
+        <Route path="/dsa" component={DSATracker} />
         <Route path="/settings" component={Settings} />
         <Route component={NotFound} />
       </Switch>

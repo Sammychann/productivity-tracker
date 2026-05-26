@@ -1,18 +1,19 @@
 import { useState, useCallback } from "react";
 import { format, subDays } from "date-fns";
 import { motion } from "framer-motion";
-import { Droplets, Flame, Beef, Moon, Dumbbell, TrendingUp, TrendingDown, Plus } from "lucide-react";
+import { Droplets, Flame, Beef, Moon, Dumbbell, TrendingUp, TrendingDown, Plus, Code2, Trophy, Zap } from "lucide-react";
 import { BarChart, Bar, LineChart, Line, ResponsiveContainer, Tooltip, XAxis, YAxis, ReferenceLine } from "recharts";
 import { RingProgress } from "@/components/RingProgress";
 import { ActivityHeatmap } from "@/components/ActivityHeatmap";
 import { storage, type DailyLog } from "@/lib/storage";
-import { useHealthTargets, useDailyLog, useSchedule, useWeightLogs, useGoals, useStore } from "@/hooks/use-storage";
+import { useHealthTargets, useDailyLog, useSchedule, useWeightLogs, useGoals, useStore, useLifts, useDSA } from "@/hooks/use-storage";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { Link } from "wouter";
 
 const TODAY = format(new Date(), "yyyy-MM-dd");
 
@@ -97,6 +98,8 @@ export default function Dashboard() {
   const weightLogs = useWeightLogs();
   const goals = useGoals();
   const allLogs = useStore("daily_logs", storage.getDailyLogs);
+  const lifts = useLifts();
+  const dsaCategories = useDSA();
   const [activeModal, setActiveModal] = useState<null | "water" | "calories" | "protein" | "sleep">(null);
 
   const t = targets ?? { calories: 2500, protein: 150, water: 8, sleep: 8 };
@@ -109,6 +112,11 @@ export default function Dashboard() {
     { field: "protein" as const, label: "Protein", unit: "g", color: "#10b981", icon: <Beef className="w-3.5 h-3.5" style={{ color: "#10b981" }} />, value: log.protein, target: t.protein },
     { field: "sleep" as const, label: "Sleep", unit: "h", color: "#818cf8", icon: <Moon className="w-3.5 h-3.5" style={{ color: "#818cf8" }} />, value: log.sleep, target: t.sleep },
   ];
+
+  // Overall daily score (0-100)
+  const dailyScore = Math.round(
+    metrics.reduce((sum, m) => sum + Math.min(m.value / Math.max(m.target, 1), 1), 0) / metrics.length * 100
+  );
 
   const weekData = Array.from({ length: 7 }, (_, i) => {
     const d = format(subDays(new Date(), 6 - i), "yyyy-MM-dd");
@@ -141,6 +149,16 @@ export default function Dashboard() {
     return streak;
   };
 
+  // Lift stats
+  const totalLifts = lifts.length;
+  const totalPRs = lifts.filter(l => l.records.length > 0).length;
+
+  // DSA stats
+  const totalDSA = dsaCategories.reduce((s, c) => s + c.problems.length, 0);
+  const dsaEasy = dsaCategories.reduce((s, c) => s + c.problems.filter(p => p.difficulty === "Easy").length, 0);
+  const dsaMed = dsaCategories.reduce((s, c) => s + c.problems.filter(p => p.difficulty === "Medium").length, 0);
+  const dsaHard = dsaCategories.reduce((s, c) => s + c.problems.filter(p => p.difficulty === "Hard").length, 0);
+
   const hour = new Date().getHours();
   const greeting = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
 
@@ -153,24 +171,38 @@ export default function Dashboard() {
         <p className="text-sm mt-0.5" style={{ color: "#555" }}>{format(new Date(), "MMMM d, yyyy")}</p>
       </motion.div>
 
-      {/* Heatmap */}
-      <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}>
-        <ActivityHeatmap />
+      {/* Today's Score + Workout */}
+      <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.04 }}
+        className="grid grid-cols-2 gap-3">
+        {/* Daily Score */}
+        <div className="rounded-2xl p-4 relative overflow-hidden"
+          style={{ background: "linear-gradient(135deg, #6366f115, #818cf810)", border: "1px solid #6366f130" }}>
+          <div className="absolute -right-4 -top-4 w-20 h-20 rounded-full opacity-[0.07]"
+            style={{ background: "radial-gradient(circle, #6366f1, transparent)" }} />
+          <div className="flex items-center gap-2 mb-2">
+            <Zap className="w-4 h-4" style={{ color: "#818cf8" }} />
+            <p className="text-[10px] font-semibold uppercase tracking-widest" style={{ color: "#818cf880" }}>Today's Score</p>
+          </div>
+          <p className="text-4xl font-black text-white tracking-tight">{dailyScore}<span className="text-lg" style={{ color: "#555" }}>%</span></p>
+        </div>
+
+        {/* Today's Workout */}
+        <div className="rounded-2xl p-4 relative overflow-hidden"
+          style={{ background: "linear-gradient(135deg, #10b98115, #22d3ee10)", border: "1px solid #10b98130" }}>
+          <div className="absolute -right-4 -top-4 w-20 h-20 rounded-full opacity-[0.07]"
+            style={{ background: "radial-gradient(circle, #10b981, transparent)" }} />
+          <div className="flex items-center gap-2 mb-2">
+            <Dumbbell className="w-4 h-4" style={{ color: "#10b98180" }} />
+            <p className="text-[10px] font-semibold uppercase tracking-widest" style={{ color: "#10b98180" }}>Today</p>
+          </div>
+          <p className="text-lg font-bold text-white leading-tight mt-1">{todayLabel || "Rest Day"}</p>
+        </div>
       </motion.div>
 
-      {/* Today's Workout */}
-      {todayLabel && (
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.08 }}
-          className="flex items-center gap-4 p-4 rounded-2xl" style={{ background: "#161616", border: "1px solid #222" }}>
-          <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-            <Dumbbell className="w-5 h-5 text-primary" />
-          </div>
-          <div>
-            <p className="text-[11px] font-semibold uppercase tracking-widest" style={{ color: "#555" }}>Today</p>
-            <p className="text-base font-bold text-white leading-tight">{todayLabel}</p>
-          </div>
-        </motion.div>
-      )}
+      {/* Heatmap */}
+      <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.06 }}>
+        <ActivityHeatmap />
+      </motion.div>
 
       {/* Progress Rings */}
       <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.08 }}>
@@ -204,7 +236,7 @@ export default function Dashboard() {
         </div>
       </motion.div>
 
-      {/* Goals */}
+      {/* Habits */}
       {goals.length > 0 && (
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.12 }}>
           <div className="flex items-center justify-between mb-4">
@@ -240,7 +272,7 @@ export default function Dashboard() {
                   </span>
                   {streak > 0 && (
                     <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full" style={{ background: "#1a1a1a", color: "#f97316" }}>
-                      {streak}d
+                      🔥 {streak}d
                     </span>
                   )}
                 </button>
@@ -249,6 +281,46 @@ export default function Dashboard() {
           </div>
         </motion.div>
       )}
+
+      {/* Lifts & DSA Summary Cards */}
+      <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.14 }}
+        className="grid grid-cols-2 gap-3">
+        {/* Lifts summary */}
+        <Link href="/lifts">
+          <div className="rounded-2xl p-4 cursor-pointer transition-all hover:border-[#333] relative overflow-hidden"
+            style={{ background: "#111", border: "1px solid #1d1d1d" }}>
+            <div className="absolute -right-3 -bottom-3 w-16 h-16 rounded-full opacity-[0.05]"
+              style={{ background: "radial-gradient(circle, #f59e0b, transparent)" }} />
+            <div className="flex items-center gap-2 mb-3">
+              <Trophy className="w-4 h-4" style={{ color: "#f59e0b" }} />
+              <p className="text-[10px] font-semibold uppercase tracking-widest" style={{ color: "#444" }}>Lifts</p>
+            </div>
+            <p className="text-3xl font-black text-white">{totalLifts}</p>
+            <p className="text-[10px] mt-1" style={{ color: "#555" }}>
+              <span style={{ color: "#f59e0b" }}>{totalPRs}</span> with PRs
+            </p>
+          </div>
+        </Link>
+
+        {/* DSA summary */}
+        <Link href="/dsa">
+          <div className="rounded-2xl p-4 cursor-pointer transition-all hover:border-[#333] relative overflow-hidden"
+            style={{ background: "#111", border: "1px solid #1d1d1d" }}>
+            <div className="absolute -right-3 -bottom-3 w-16 h-16 rounded-full opacity-[0.05]"
+              style={{ background: "radial-gradient(circle, #6366f1, transparent)" }} />
+            <div className="flex items-center gap-2 mb-3">
+              <Code2 className="w-4 h-4" style={{ color: "#6366f1" }} />
+              <p className="text-[10px] font-semibold uppercase tracking-widest" style={{ color: "#444" }}>DSA</p>
+            </div>
+            <p className="text-3xl font-black text-white">{totalDSA}</p>
+            <div className="flex items-center gap-2 mt-1">
+              <span className="text-[10px]" style={{ color: "#22c55e" }}>{dsaEasy}E</span>
+              <span className="text-[10px]" style={{ color: "#f59e0b" }}>{dsaMed}M</span>
+              <span className="text-[10px]" style={{ color: "#ef4444" }}>{dsaHard}H</span>
+            </div>
+          </div>
+        </Link>
+      </motion.div>
 
       {/* Charts */}
       <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.16 }}
