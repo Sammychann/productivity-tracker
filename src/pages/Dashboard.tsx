@@ -27,11 +27,12 @@ function useIsMobile() {
 }
 
 function QuickLogModal({
-  open, onClose, field, current, target, label, unit, color,
+  open, onClose, field, current, target, label, unit, color, dateStr
 }: {
   open: boolean; onClose: () => void;
   field: keyof Pick<DailyLog, "water" | "calories" | "protein" | "sleep">;
   current: number; target: number; label: string; unit: string; color: string;
+  dateStr: string;
 }) {
   const [val, setVal] = useState(String(current));
   const isMobile = useIsMobile();
@@ -40,7 +41,7 @@ function QuickLogModal({
   const save = () => {
     const n = parseFloat(val);
     if (!isNaN(n) && n >= 0) {
-      storage.updateDailyLog(TODAY, { [field]: n } as Partial<DailyLog>);
+      storage.updateDailyLog(dateStr, { [field]: n } as Partial<DailyLog>);
       toast.success(`${label} updated`);
       onClose();
     }
@@ -93,7 +94,10 @@ function QuickLogModal({
 
 export default function Dashboard() {
   const targets = useHealthTargets();
-  const log = useDailyLog(new Date());
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const selectedDateStr = format(selectedDate, "yyyy-MM-dd");
+  const isToday = selectedDateStr === TODAY;
+  const log = useDailyLog(selectedDate);
   const schedule = useSchedule();
   const weightLogs = useWeightLogs();
   const goals = useGoals();
@@ -101,12 +105,9 @@ export default function Dashboard() {
   const lifts = useLifts();
   const dsaCategories = useDSA();
   const [activeModal, setActiveModal] = useState<null | "water" | "calories" | "protein" | "sleep">(null);
-  const [habitDate, setHabitDate] = useState(new Date());
-  const habitDateStr = format(habitDate, "yyyy-MM-dd");
-  const isHabitToday = habitDateStr === TODAY;
 
   const t = targets ?? { calories: 2500, protein: 150, water: 8, sleep: 8 };
-  const todayWorkoutObj = schedule[WEEKDAY_KEY[format(new Date(), "EEEE")] || "mon"];
+  const todayWorkoutObj = schedule[WEEKDAY_KEY[format(selectedDate, "EEEE")] || "mon"];
   const todayLabel = typeof todayWorkoutObj === "string" ? todayWorkoutObj : todayWorkoutObj?.label;
 
   const metrics = [
@@ -132,14 +133,13 @@ export default function Dashboard() {
     weight: w.weight,
   }));
 
-  const toggleGoalForDate = useCallback((goalId: string) => {
-    const dateStr = format(habitDate, "yyyy-MM-dd");
-    const dayLog = allLogs[dateStr] || { water: 0, calories: 0, protein: 0, sleep: 0, completedGoals: [] };
+  const toggleGoal = useCallback((goalId: string) => {
+    const dayLog = allLogs[selectedDateStr] || { water: 0, calories: 0, protein: 0, sleep: 0, completedGoals: [] };
     const completed = dayLog.completedGoals || [];
     const next = completed.includes(goalId) ? completed.filter(g => g !== goalId) : [...completed, goalId];
-    storage.updateDailyLog(dateStr, { completedGoals: next });
+    storage.updateDailyLog(selectedDateStr, { completedGoals: next });
     if (!completed.includes(goalId)) toast.success("Goal done");
-  }, [habitDate, allLogs]);
+  }, [selectedDateStr, allLogs]);
 
   const getStreak = (goalId: string) => {
     let streak = 0; let d = new Date();
@@ -170,10 +170,32 @@ export default function Dashboard() {
   return (
     <div className="space-y-8">
       {/* Header */}
-      <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}>
-        <p className="text-[13px] font-medium uppercase tracking-widest mb-1" style={{ color: "#444" }}>{greeting}</p>
-        <h1 className="text-3xl font-bold text-white tracking-tight">{format(new Date(), "EEEE")}</h1>
-        <p className="text-sm mt-0.5" style={{ color: "#555" }}>{format(new Date(), "MMMM d, yyyy")}</p>
+      <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}
+        className="flex items-start justify-between">
+        <div>
+          <p className="text-[13px] font-medium uppercase tracking-widest mb-1" style={{ color: "#444" }}>{greeting}</p>
+          <h1 className="text-3xl font-bold text-white tracking-tight">{format(selectedDate, "EEEE")}</h1>
+          <p className="text-sm mt-0.5" style={{ color: "#555" }}>{format(selectedDate, "MMMM d, yyyy")}</p>
+        </div>
+        {/* Date Navigator */}
+        <div className="flex items-center gap-1">
+          <button onClick={() => setSelectedDate(d => subDays(d, 1))}
+            className="w-8 h-8 rounded-lg flex items-center justify-center transition-colors hover:bg-white/[0.05]"
+            style={{ color: "#555" }}>
+            <ChevronLeft className="w-5 h-5" />
+          </button>
+          <button
+            onClick={() => setSelectedDate(new Date())}
+            className="text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors hover:bg-white/[0.05]"
+            style={{ color: isToday ? "#888" : "#6366f1", background: isToday ? "transparent" : "#6366f115" }}>
+            {isToday ? "Today" : format(selectedDate, "MMM d")}
+          </button>
+          <button onClick={() => { if (!isToday) setSelectedDate(d => { const next = addDays(d, 1); return next > new Date() ? new Date() : next; }); }}
+            className="w-8 h-8 rounded-lg flex items-center justify-center transition-colors hover:bg-white/[0.05]"
+            style={{ color: isToday ? "#2a2a2a" : "#555" }}>
+            <ChevronRight className="w-5 h-5" />
+          </button>
+        </div>
       </motion.div>
 
       {/* Today's Score + Workout */}
@@ -186,7 +208,7 @@ export default function Dashboard() {
             style={{ background: "radial-gradient(circle, #6366f1, transparent)" }} />
           <div className="flex items-center gap-2 mb-2">
             <Zap className="w-4 h-4" style={{ color: "#818cf8" }} />
-            <p className="text-[10px] font-semibold uppercase tracking-widest" style={{ color: "#818cf880" }}>Today's Score</p>
+            <p className="text-[10px] font-semibold uppercase tracking-widest" style={{ color: "#818cf880" }}>{isToday ? "Today's Score" : "Score"}</p>
           </div>
           <p className="text-4xl font-black text-white tracking-tight">{dailyScore}<span className="text-lg" style={{ color: "#555" }}>%</span></p>
         </div>
@@ -198,7 +220,7 @@ export default function Dashboard() {
             style={{ background: "radial-gradient(circle, #10b981, transparent)" }} />
           <div className="flex items-center gap-2 mb-2">
             <Dumbbell className="w-4 h-4" style={{ color: "#10b98180" }} />
-            <p className="text-[10px] font-semibold uppercase tracking-widest" style={{ color: "#10b98180" }}>Today</p>
+            <p className="text-[10px] font-semibold uppercase tracking-widest" style={{ color: "#10b98180" }}>{isToday ? "Today" : format(selectedDate, "EEEE")}</p>
           </div>
           <p className="text-lg font-bold text-white leading-tight mt-1">{todayLabel || "Rest Day"}</p>
         </div>
@@ -211,7 +233,7 @@ export default function Dashboard() {
 
       {/* Progress Rings */}
       <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.08 }}>
-        <p className="text-[11px] font-semibold uppercase tracking-widest mb-4" style={{ color: "#444" }}>Today's Progress</p>
+        <p className="text-[11px] font-semibold uppercase tracking-widest mb-4" style={{ color: "#444" }}>{isToday ? "Today's Progress" : "Progress"}</p>
         <div className="grid grid-cols-4 gap-3">
           {metrics.map(m => {
             const pct = Math.round(Math.min(m.value / Math.max(m.target, 1), 1) * 100);
@@ -246,33 +268,16 @@ export default function Dashboard() {
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.12 }}>
           <div className="flex items-center justify-between mb-4">
             <p className="text-[11px] font-semibold uppercase tracking-widest" style={{ color: "#444" }}>Habits</p>
-            {/* Date navigator */}
-            <div className="flex items-center gap-1">
-              <button onClick={() => setHabitDate(d => subDays(d, 1))}
-                className="w-6 h-6 rounded-md flex items-center justify-center transition-colors hover:bg-white/[0.05]"
-                style={{ color: "#555" }}>
-                <ChevronLeft className="w-3.5 h-3.5" />
-              </button>
-              <button
-                onClick={() => setHabitDate(new Date())}
-                className="text-[11px] font-semibold px-2 py-0.5 rounded-md transition-colors hover:bg-white/[0.05]"
-                style={{ color: isHabitToday ? "#888" : "#6366f1" }}>
-                {isHabitToday ? "Today" : format(habitDate, "MMM d")}
-              </button>
-              <button onClick={() => { if (!isHabitToday) setHabitDate(d => { const next = addDays(d, 1); return next > new Date() ? new Date() : next; }); }}
-                className="w-6 h-6 rounded-md flex items-center justify-center transition-colors hover:bg-white/[0.05]"
-                style={{ color: isHabitToday ? "#2a2a2a" : "#555" }}>
-                <ChevronRight className="w-3.5 h-3.5" />
-              </button>
-            </div>
+            <p className="text-[11px]" style={{ color: "#444" }}>
+              {(log.completedGoals || []).filter(id => goals.find(g => g.id === id)).length} / {goals.length}
+            </p>
           </div>
           <div className="rounded-2xl overflow-hidden" style={{ border: "1px solid #1d1d1d" }}>
             {goals.map((goal, i) => {
-              const habitLog = allLogs[habitDateStr] || { water: 0, calories: 0, protein: 0, sleep: 0, completedGoals: [] };
-              const done = (habitLog.completedGoals || []).includes(goal.id);
+              const done = (log.completedGoals || []).includes(goal.id);
               const streak = getStreak(goal.id);
               return (
-                <button key={goal.id} onClick={() => toggleGoalForDate(goal.id)}
+                <button key={goal.id} onClick={() => toggleGoal(goal.id)}
                   className="w-full flex items-center gap-3 px-4 py-3.5 text-left transition-colors hover:bg-white/[0.02]"
                   style={{
                     background: done ? "#131313" : "#111",
@@ -292,7 +297,7 @@ export default function Dashboard() {
                   <span className="flex-1 text-sm font-medium" style={{ color: done ? "#444" : "#ccc" }}>
                     {goal.name}
                   </span>
-                  {streak > 0 && isHabitToday && (
+                  {streak > 0 && isToday && (
                     <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full" style={{ background: "#1a1a1a", color: "#f97316" }}>
                       🔥 {streak}d
                     </span>
@@ -301,11 +306,6 @@ export default function Dashboard() {
               );
             })}
           </div>
-          {!isHabitToday && (
-            <p className="text-[10px] mt-2 text-center" style={{ color: "#333" }}>
-              Editing habits for {format(habitDate, "EEEE, MMM d")}
-            </p>
-          )}
         </motion.div>
       )}
 
@@ -401,7 +401,7 @@ export default function Dashboard() {
       {/* Quick Log Modals */}
       {metrics.map(m => (
         <QuickLogModal key={m.field} open={activeModal === m.field} onClose={() => setActiveModal(null)}
-          field={m.field} current={m.value} target={m.target} label={m.label} unit={m.unit} color={m.color} />
+          field={m.field} current={m.value} target={m.target} label={m.label} unit={m.unit} color={m.color} dateStr={selectedDateStr} />
       ))}
     </div>
   );
