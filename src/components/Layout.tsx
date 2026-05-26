@@ -8,13 +8,12 @@ const navItems = [
   { href: "/schedule", label: "Schedule", icon: Calendar },
   { href: "/health", label: "Health", icon: Heart },
   { href: "/weight", label: "Weight", icon: Scale },
-  { href: "/lifts", label: "Lifts", icon: Trophy },
-  { href: "/dsa", label: "DSA", icon: Code2 },
+  { href: "/trackers", label: "Trackers", icon: Trophy },
   { href: "/settings", label: "Settings", icon: Settings },
 ];
 
-// Mobile nav: first 7 items (drop Settings — accessible from sidebar on desktop)
-const mobileNav = navItems.slice(0, 7);
+// Mobile nav: first 6 items (drop Settings — accessible from sidebar on desktop)
+const mobileNav = navItems.slice(0, 6);
 
 export function Layout({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();

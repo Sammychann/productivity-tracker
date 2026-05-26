@@ -44,14 +44,10 @@ export function useWeightLogs() {
   return useStore("weight_logs", storage.getWeightLogs);
 }
 
-export function useLifts() {
-  return useStore("lift_prs", storage.getLifts);
-}
-
 export function useCategories() {
   return useStore("lift_categories", storage.getCategories);
 }
 
-export function useDSA() {
-  return useStore("dsa_problems", storage.getDSA);
+export function useTrackers() {
+  return useStore("trackers", storage.getTrackers);
 }

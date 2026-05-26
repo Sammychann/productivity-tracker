@@ -59,51 +59,99 @@ export const UserPrefsSchema = z.object({
 });
 export type UserPrefs = z.infer<typeof UserPrefsSchema>;
 
-export const LiftRecordSchema = z.object({
+// --- Unified Tracker System ---
+
+export const TrackerRecordSchema = z.object({
+  id: z.string(),
   date: z.string(),
-  weight: z.number(),
-  reps: z.number(),
-  notes: z.string().optional(),
-});
-export type LiftRecord = z.infer<typeof LiftRecordSchema>;
-
-export const LiftEntrySchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  category: z.string(),
-  records: z.array(LiftRecordSchema),
-});
-export type LiftEntry = z.infer<typeof LiftEntrySchema>;
-
-// DSA Problem Tracker
-export const DSAProblemSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  difficulty: z.enum(["Easy", "Medium", "Hard"]).optional(),
+  value1: z.number().optional(),
+  value2: z.number().optional(),
+  status: z.string().optional(),
   url: z.string().optional(),
-  date: z.string(),
   notes: z.string().optional(),
 });
-export type DSAProblem = z.infer<typeof DSAProblemSchema>;
+export type TrackerRecord = z.infer<typeof TrackerRecordSchema>;
 
-export const DSACategorySchema = z.object({
+export const TrackerItemSchema = z.object({
   id: z.string(),
   name: z.string(),
-  problems: z.array(DSAProblemSchema),
+  records: z.array(TrackerRecordSchema),
 });
-export type DSACategory = z.infer<typeof DSACategorySchema>;
+export type TrackerItem = z.infer<typeof TrackerItemSchema>;
 
-export const DEFAULT_CATEGORIES = ["Push", "Pull", "Legs", "Core", "Cardio"] as const;
+export const TrackerCategorySchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  items: z.array(TrackerItemSchema),
+});
+export type TrackerCategory = z.infer<typeof TrackerCategorySchema>;
 
-export const DEFAULT_DSA_CATEGORIES: DSACategory[] = [
-  { id: "arrays", name: "Arrays", problems: [] },
-  { id: "strings", name: "Strings", problems: [] },
-  { id: "linked-lists", name: "Linked Lists", problems: [] },
-  { id: "trees", name: "Trees", problems: [] },
-  { id: "graphs", name: "Graphs", problems: [] },
-  { id: "dp", name: "Dynamic Programming", problems: [] },
-  { id: "stacks-queues", name: "Stacks & Queues", problems: [] },
-  { id: "hashmaps", name: "Hash Maps", problems: [] },
+export const TrackerSectionSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  icon: z.string(),
+  type: z.enum(["measurement", "completion"]),
+  isActive: z.boolean(),
+  metric1: z.string().optional(),
+  metric2: z.string().optional(),
+  hasDifficulty: z.boolean().optional(),
+  hasUrl: z.boolean().optional(),
+  categories: z.array(TrackerCategorySchema),
+});
+export type TrackerSection = z.infer<typeof TrackerSectionSchema>;
+
+export const DEFAULT_TRACKERS: TrackerSection[] = [
+  {
+    id: "gym",
+    name: "Gym",
+    icon: "dumbbell",
+    type: "measurement",
+    isActive: true,
+    metric1: "Weight",
+    metric2: "Reps",
+    categories: [
+      {
+        id: "push", name: "Push",
+        items: [
+          { id: "bench", name: "Bench Press", records: [] },
+          { id: "ohp", name: "Overhead Press", records: [] }
+        ]
+      },
+      {
+        id: "pull", name: "Pull",
+        items: [
+          { id: "deadlift", name: "Deadlift", records: [] },
+          { id: "row", name: "Barbell Row", records: [] }
+        ]
+      },
+      {
+        id: "legs", name: "Legs",
+        items: [
+          { id: "squat", name: "Back Squat", records: [] },
+          { id: "rdl", name: "Romanian Deadlift", records: [] }
+        ]
+      }
+    ]
+  },
+  {
+    id: "dsa",
+    name: "DSA",
+    icon: "code",
+    type: "completion",
+    isActive: true,
+    hasDifficulty: true,
+    hasUrl: true,
+    categories: [
+      { id: "arrays", name: "Arrays", items: [] },
+      { id: "strings", name: "Strings", items: [] },
+      { id: "linked-lists", name: "Linked Lists", items: [] },
+      { id: "trees", name: "Trees", items: [] },
+      { id: "graphs", name: "Graphs", items: [] },
+      { id: "dp", name: "Dynamic Programming", items: [] },
+      { id: "stacks-queues", name: "Stacks & Queues", items: [] },
+      { id: "hashmaps", name: "Hash Maps", items: [] },
+    ]
+  }
 ];
 
 export const DEFAULT_GOALS: GoalConfig[] = [
@@ -128,15 +176,6 @@ export const DEFAULT_TARGETS: HealthTargets = {
   sleep: 8,
 };
 
-export const DEFAULT_LIFTS: LiftEntry[] = [
-  { id: "bench", name: "Bench Press", category: "Push", records: [] },
-  { id: "ohp", name: "Overhead Press", category: "Push", records: [] },
-  { id: "deadlift", name: "Deadlift", category: "Pull", records: [] },
-  { id: "row", name: "Barbell Row", category: "Pull", records: [] },
-  { id: "squat", name: "Back Squat", category: "Legs", records: [] },
-  { id: "rdl", name: "Romanian Deadlift", category: "Legs", records: [] },
-];
-
 const EMPTY_LOG: DailyLog = { water: 0, calories: 0, protein: 0, sleep: 0, completedGoals: [] };
 
 const get = <T,>(key: string, def: T): T => {
@@ -159,7 +198,6 @@ export const storage = {
 
   getSchedule: (): GymSchedule => {
     const raw = get<any>("gym_schedule", null);
-    // Migrate old format (string values) to new format ({label, categories})
     if (raw && typeof raw.mon === "string") {
       const migrated: any = {};
       for (const key of Object.keys(raw)) {
@@ -170,9 +208,6 @@ export const storage = {
     return raw || DEFAULT_SCHEDULE;
   },
   setSchedule: (schedule: GymSchedule) => set("gym_schedule", schedule),
-
-  getCategories: () => get<string[]>("lift_categories", [...DEFAULT_CATEGORIES]),
-  setCategories: (cats: string[]) => set("lift_categories", cats),
 
   getDailyLogs: () => get<Record<string, DailyLog>>("daily_logs", {}),
   setDailyLogs: (logs: Record<string, DailyLog>) => set("daily_logs", logs),
@@ -195,14 +230,63 @@ export const storage = {
   getUserPrefs: () => get<UserPrefs | null>("user_prefs", null),
   setUserPrefs: (prefs: UserPrefs) => set("user_prefs", prefs),
 
-  getLifts: () => get<LiftEntry[]>("lift_prs", DEFAULT_LIFTS),
-  setLifts: (lifts: LiftEntry[]) => set("lift_prs", lifts),
+  getTrackers: (): TrackerSection[] => {
+    let trackers = get<TrackerSection[] | null>("trackers", null);
+    if (!trackers) {
+      // Migrate old data
+      const oldLifts = get<any[] | null>("lift_prs", null);
+      const oldDSA = get<any[] | null>("dsa_problems", null);
+      trackers = JSON.parse(JSON.stringify(DEFAULT_TRACKERS)); // deep copy
 
-  getDSA: () => get<DSACategory[]>("dsa_problems", DEFAULT_DSA_CATEGORIES),
-  setDSA: (data: DSACategory[]) => set("dsa_problems", data),
+      if (oldLifts) {
+        const gym = trackers.find(t => t.id === "gym")!;
+        gym.categories = [];
+        const catMap = new Map<string, TrackerCategory>();
+        for (const lift of oldLifts) {
+          if (!catMap.has(lift.category)) {
+            catMap.set(lift.category, { id: crypto.randomUUID(), name: lift.category, items: [] });
+          }
+          const cat = catMap.get(lift.category)!;
+          cat.items.push({
+            id: lift.id,
+            name: lift.name,
+            records: lift.records.map((r: any) => ({
+              id: crypto.randomUUID(),
+              date: r.date,
+              value1: r.weight,
+              value2: r.reps,
+              notes: r.notes
+            }))
+          });
+        }
+        gym.categories = Array.from(catMap.values());
+      }
+      if (oldDSA) {
+        const dsa = trackers.find(t => t.id === "dsa")!;
+        dsa.categories = oldDSA.map(c => ({
+          id: c.id,
+          name: c.name,
+          items: c.problems.map((p: any) => ({
+            id: p.id,
+            name: p.name,
+            records: [{
+              id: crypto.randomUUID(),
+              date: p.date,
+              status: p.difficulty,
+              url: p.url,
+              notes: p.notes
+            }]
+          }))
+        }));
+      }
+      set("trackers", trackers);
+    }
+    return trackers;
+  },
+  setTrackers: (trackers: TrackerSection[]) => set("trackers", trackers),
 
   clearAll: () => {
-    ["goals_config", "gym_schedule", "daily_logs", "weight_logs", "health_targets", "user_prefs", "lift_prs", "lift_categories", "dsa_problems"]
+    ["goals_config", "gym_schedule", "daily_logs", "weight_logs", "health_targets", "user_prefs", "trackers", "lift_prs", "lift_categories", "dsa_problems"]
       .forEach((k) => localStorage.removeItem(k));
     window.dispatchEvent(new Event("storage:cleared"));
   },

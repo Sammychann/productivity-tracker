@@ -1,12 +1,12 @@
 import { useState, useCallback } from "react";
 import { format, subDays, addDays } from "date-fns";
 import { motion } from "framer-motion";
-import { Droplets, Flame, Beef, Moon, Dumbbell, TrendingUp, TrendingDown, Plus, Code2, Trophy, Zap, ChevronLeft, ChevronRight } from "lucide-react";
+import { Droplets, Flame, Beef, Moon, Dumbbell, TrendingUp, TrendingDown, Plus, Code2, Trophy, Zap, ChevronLeft, ChevronRight, BookOpen, Activity, LayoutGrid } from "lucide-react";
 import { BarChart, Bar, LineChart, Line, ResponsiveContainer, Tooltip, XAxis, YAxis, ReferenceLine } from "recharts";
 import { RingProgress } from "@/components/RingProgress";
 import { ActivityHeatmap } from "@/components/ActivityHeatmap";
 import { storage, type DailyLog } from "@/lib/storage";
-import { useHealthTargets, useDailyLog, useSchedule, useWeightLogs, useGoals, useStore, useLifts, useDSA } from "@/hooks/use-storage";
+import { useHealthTargets, useDailyLog, useSchedule, useWeightLogs, useGoals, useStore, useTrackers } from "@/hooks/use-storage";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
 import { Input } from "@/components/ui/input";
@@ -102,8 +102,8 @@ export default function Dashboard() {
   const weightLogs = useWeightLogs();
   const goals = useGoals();
   const allLogs = useStore("daily_logs", storage.getDailyLogs);
-  const lifts = useLifts();
-  const dsaCategories = useDSA();
+  const trackers = useTrackers();
+  const activeTrackers = trackers.filter(t => t.isActive);
   const [activeModal, setActiveModal] = useState<null | "water" | "calories" | "protein" | "sleep">(null);
 
   const t = targets ?? { calories: 2500, protein: 150, water: 8, sleep: 8 };
@@ -154,15 +154,7 @@ export default function Dashboard() {
     return streak;
   };
 
-  // Lift stats
-  const totalLifts = lifts.length;
-  const totalPRs = lifts.filter(l => l.records.length > 0).length;
 
-  // DSA stats
-  const totalDSA = dsaCategories.reduce((s, c) => s + c.problems.length, 0);
-  const dsaEasy = dsaCategories.reduce((s, c) => s + c.problems.filter(p => p.difficulty === "Easy").length, 0);
-  const dsaMed = dsaCategories.reduce((s, c) => s + c.problems.filter(p => p.difficulty === "Medium").length, 0);
-  const dsaHard = dsaCategories.reduce((s, c) => s + c.problems.filter(p => p.difficulty === "Hard").length, 0);
 
   const hour = new Date().getHours();
   const greeting = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
@@ -309,45 +301,57 @@ export default function Dashboard() {
         </motion.div>
       )}
 
-      {/* Lifts & DSA Summary Cards */}
-      <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.14 }}
-        className="grid grid-cols-2 gap-3">
-        {/* Lifts summary */}
-        <Link href="/lifts">
-          <div className="rounded-2xl p-4 cursor-pointer transition-all hover:border-[#333] relative overflow-hidden"
-            style={{ background: "#111", border: "1px solid #1d1d1d" }}>
-            <div className="absolute -right-3 -bottom-3 w-16 h-16 rounded-full opacity-[0.05]"
-              style={{ background: "radial-gradient(circle, #f59e0b, transparent)" }} />
-            <div className="flex items-center gap-2 mb-3">
-              <Trophy className="w-4 h-4" style={{ color: "#f59e0b" }} />
-              <p className="text-[10px] font-semibold uppercase tracking-widest" style={{ color: "#444" }}>Lifts</p>
-            </div>
-            <p className="text-3xl font-black text-white">{totalLifts}</p>
-            <p className="text-[10px] mt-1" style={{ color: "#555" }}>
-              <span style={{ color: "#f59e0b" }}>{totalPRs}</span> with PRs
-            </p>
-          </div>
-        </Link>
+      {/* Tracker Summary Cards */}
+      {activeTrackers.length > 0 && (
+        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.14 }}
+          className="grid grid-cols-2 gap-3">
+          {activeTrackers.map((t, i) => {
+            const totalItems = t.categories.reduce((s, c) => s + c.items.length, 0);
+            
+            let extraStat = null;
+            if (t.type === "measurement") {
+              const itemsWithLogs = t.categories.reduce((s, c) => s + c.items.filter(item => item.records.length > 0).length, 0);
+              extraStat = <span style={{ color: "#f59e0b" }}>{itemsWithLogs} logged</span>;
+            } else if (t.type === "completion" && t.hasDifficulty) {
+              const e = t.categories.reduce((s, c) => s + c.items.filter(item => item.records.length > 0 && item.records[item.records.length-1].status === "Easy").length, 0);
+              const m = t.categories.reduce((s, c) => s + c.items.filter(item => item.records.length > 0 && item.records[item.records.length-1].status === "Medium").length, 0);
+              const h = t.categories.reduce((s, c) => s + c.items.filter(item => item.records.length > 0 && item.records[item.records.length-1].status === "Hard").length, 0);
+              extraStat = (
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px]" style={{ color: "#22c55e" }}>{e}E</span>
+                  <span className="text-[10px]" style={{ color: "#f59e0b" }}>{m}M</span>
+                  <span className="text-[10px]" style={{ color: "#ef4444" }}>{h}H</span>
+                </div>
+              );
+            }
 
-        {/* DSA summary */}
-        <Link href="/dsa">
-          <div className="rounded-2xl p-4 cursor-pointer transition-all hover:border-[#333] relative overflow-hidden"
-            style={{ background: "#111", border: "1px solid #1d1d1d" }}>
-            <div className="absolute -right-3 -bottom-3 w-16 h-16 rounded-full opacity-[0.05]"
-              style={{ background: "radial-gradient(circle, #6366f1, transparent)" }} />
-            <div className="flex items-center gap-2 mb-3">
-              <Code2 className="w-4 h-4" style={{ color: "#6366f1" }} />
-              <p className="text-[10px] font-semibold uppercase tracking-widest" style={{ color: "#444" }}>DSA</p>
-            </div>
-            <p className="text-3xl font-black text-white">{totalDSA}</p>
-            <div className="flex items-center gap-2 mt-1">
-              <span className="text-[10px]" style={{ color: "#22c55e" }}>{dsaEasy}E</span>
-              <span className="text-[10px]" style={{ color: "#f59e0b" }}>{dsaMed}M</span>
-              <span className="text-[10px]" style={{ color: "#ef4444" }}>{dsaHard}H</span>
-            </div>
-          </div>
-        </Link>
-      </motion.div>
+            return (
+              <Link key={t.id} href={`/trackers/${t.id}`}>
+                <div className="rounded-2xl p-4 cursor-pointer transition-all hover:border-[#333] relative overflow-hidden"
+                  style={{ background: "#111", border: "1px solid #1d1d1d" }}>
+                  <div className="absolute -right-3 -bottom-3 w-16 h-16 rounded-full opacity-[0.05]"
+                    style={{ background: `radial-gradient(circle, ${i % 2 === 0 ? "#f59e0b" : "#6366f1"}, transparent)` }} />
+                  <div className="flex items-center gap-2 mb-3">
+                    {t.icon === "dumbbell" ? <Dumbbell className="w-4 h-4" style={{ color: "#f59e0b" }} /> : 
+                     t.icon === "code" ? <Code2 className="w-4 h-4" style={{ color: "#6366f1" }} /> :
+                     t.icon === "book" ? <BookOpen className="w-4 h-4" style={{ color: "#10b981" }} /> :
+                     <Activity className="w-4 h-4" style={{ color: "#22d3ee" }} />}
+                    <p className="text-[10px] font-semibold uppercase tracking-widest" style={{ color: "#444" }}>{t.name}</p>
+                  </div>
+                  <p className="text-3xl font-black text-white">{totalItems}</p>
+                  {extraStat ? (
+                    <div className="text-[10px] mt-1" style={{ color: "#555" }}>
+                      {extraStat}
+                    </div>
+                  ) : (
+                    <p className="text-[10px] mt-1" style={{ color: "#555" }}>Items</p>
+                  )}
+                </div>
+              </Link>
+            );
+          })}
+        </motion.div>
+      )}
 
       {/* Charts */}
       <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.16 }}

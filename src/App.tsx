@@ -9,8 +9,8 @@ import DailyGoals from "@/pages/DailyGoals";
 import WeeklySchedule from "@/pages/WeeklySchedule";
 import HealthTracker from "@/pages/HealthTracker";
 import WeightTracker from "@/pages/WeightTracker";
-import LiftTracker from "@/pages/LiftTracker";
-import DSATracker from "@/pages/DSATracker";
+import Trackers from "./pages/Trackers";
+import TrackerDetail from "./pages/TrackerDetail";
 import Settings from "@/pages/Settings";
 import NotFound from "@/pages/not-found";
 import Auth from "@/pages/Auth";
@@ -123,8 +123,8 @@ function AppInner() {
         <Route path="/schedule" component={WeeklySchedule} />
         <Route path="/health" component={HealthTracker} />
         <Route path="/weight" component={WeightTracker} />
-        <Route path="/lifts" component={LiftTracker} />
-        <Route path="/dsa" component={DSATracker} />
+        <Route path="/trackers" component={Trackers} />
+        <Route path="/trackers/:id" component={TrackerDetail} />
         <Route path="/settings" component={Settings} />
         <Route component={NotFound} />
       </Switch>
