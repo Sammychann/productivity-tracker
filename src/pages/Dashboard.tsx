@@ -1,7 +1,7 @@
 import { useState, useCallback } from "react";
-import { format, subDays } from "date-fns";
+import { format, subDays, addDays } from "date-fns";
 import { motion } from "framer-motion";
-import { Droplets, Flame, Beef, Moon, Dumbbell, TrendingUp, TrendingDown, Plus, Code2, Trophy, Zap } from "lucide-react";
+import { Droplets, Flame, Beef, Moon, Dumbbell, TrendingUp, TrendingDown, Plus, Code2, Trophy, Zap, ChevronLeft, ChevronRight } from "lucide-react";
 import { BarChart, Bar, LineChart, Line, ResponsiveContainer, Tooltip, XAxis, YAxis, ReferenceLine } from "recharts";
 import { RingProgress } from "@/components/RingProgress";
 import { ActivityHeatmap } from "@/components/ActivityHeatmap";
@@ -101,6 +101,9 @@ export default function Dashboard() {
   const lifts = useLifts();
   const dsaCategories = useDSA();
   const [activeModal, setActiveModal] = useState<null | "water" | "calories" | "protein" | "sleep">(null);
+  const [habitDate, setHabitDate] = useState(new Date());
+  const habitDateStr = format(habitDate, "yyyy-MM-dd");
+  const isHabitToday = habitDateStr === TODAY;
 
   const t = targets ?? { calories: 2500, protein: 150, water: 8, sleep: 8 };
   const todayWorkoutObj = schedule[WEEKDAY_KEY[format(new Date(), "EEEE")] || "mon"];
@@ -129,12 +132,14 @@ export default function Dashboard() {
     weight: w.weight,
   }));
 
-  const toggleGoal = useCallback((goalId: string) => {
-    const completed = log.completedGoals || [];
+  const toggleGoalForDate = useCallback((goalId: string) => {
+    const dateStr = format(habitDate, "yyyy-MM-dd");
+    const dayLog = allLogs[dateStr] || { water: 0, calories: 0, protein: 0, sleep: 0, completedGoals: [] };
+    const completed = dayLog.completedGoals || [];
     const next = completed.includes(goalId) ? completed.filter(g => g !== goalId) : [...completed, goalId];
-    storage.updateDailyLog(TODAY, { completedGoals: next });
+    storage.updateDailyLog(dateStr, { completedGoals: next });
     if (!completed.includes(goalId)) toast.success("Goal done");
-  }, [log.completedGoals]);
+  }, [habitDate, allLogs]);
 
   const getStreak = (goalId: string) => {
     let streak = 0; let d = new Date();
@@ -241,16 +246,33 @@ export default function Dashboard() {
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.12 }}>
           <div className="flex items-center justify-between mb-4">
             <p className="text-[11px] font-semibold uppercase tracking-widest" style={{ color: "#444" }}>Habits</p>
-            <p className="text-[11px]" style={{ color: "#444" }}>
-              {(log.completedGoals || []).filter(id => goals.find(g => g.id === id)).length} / {goals.length}
-            </p>
+            {/* Date navigator */}
+            <div className="flex items-center gap-1">
+              <button onClick={() => setHabitDate(d => subDays(d, 1))}
+                className="w-6 h-6 rounded-md flex items-center justify-center transition-colors hover:bg-white/[0.05]"
+                style={{ color: "#555" }}>
+                <ChevronLeft className="w-3.5 h-3.5" />
+              </button>
+              <button
+                onClick={() => setHabitDate(new Date())}
+                className="text-[11px] font-semibold px-2 py-0.5 rounded-md transition-colors hover:bg-white/[0.05]"
+                style={{ color: isHabitToday ? "#888" : "#6366f1" }}>
+                {isHabitToday ? "Today" : format(habitDate, "MMM d")}
+              </button>
+              <button onClick={() => { if (!isHabitToday) setHabitDate(d => { const next = addDays(d, 1); return next > new Date() ? new Date() : next; }); }}
+                className="w-6 h-6 rounded-md flex items-center justify-center transition-colors hover:bg-white/[0.05]"
+                style={{ color: isHabitToday ? "#2a2a2a" : "#555" }}>
+                <ChevronRight className="w-3.5 h-3.5" />
+              </button>
+            </div>
           </div>
           <div className="rounded-2xl overflow-hidden" style={{ border: "1px solid #1d1d1d" }}>
             {goals.map((goal, i) => {
-              const done = (log.completedGoals || []).includes(goal.id);
+              const habitLog = allLogs[habitDateStr] || { water: 0, calories: 0, protein: 0, sleep: 0, completedGoals: [] };
+              const done = (habitLog.completedGoals || []).includes(goal.id);
               const streak = getStreak(goal.id);
               return (
-                <button key={goal.id} onClick={() => toggleGoal(goal.id)}
+                <button key={goal.id} onClick={() => toggleGoalForDate(goal.id)}
                   className="w-full flex items-center gap-3 px-4 py-3.5 text-left transition-colors hover:bg-white/[0.02]"
                   style={{
                     background: done ? "#131313" : "#111",
@@ -270,7 +292,7 @@ export default function Dashboard() {
                   <span className="flex-1 text-sm font-medium" style={{ color: done ? "#444" : "#ccc" }}>
                     {goal.name}
                   </span>
-                  {streak > 0 && (
+                  {streak > 0 && isHabitToday && (
                     <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full" style={{ background: "#1a1a1a", color: "#f97316" }}>
                       🔥 {streak}d
                     </span>
@@ -279,6 +301,11 @@ export default function Dashboard() {
               );
             })}
           </div>
+          {!isHabitToday && (
+            <p className="text-[10px] mt-2 text-center" style={{ color: "#333" }}>
+              Editing habits for {format(habitDate, "EEEE, MMM d")}
+            </p>
+          )}
         </motion.div>
       )}
 
