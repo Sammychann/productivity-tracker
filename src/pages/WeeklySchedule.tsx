@@ -2,8 +2,8 @@ import { useState } from "react";
 import { format } from "date-fns";
 import { motion, AnimatePresence } from "framer-motion";
 import { Check, Dumbbell, Pencil, ChevronDown, Trophy, Plus } from "lucide-react";
-import { storage, type GymSchedule, type LiftEntry, type LiftRecord } from "@/lib/storage";
-import { useSchedule, useLifts, useUserPrefs, useCategories } from "@/hooks/use-storage";
+import { storage, type GymSchedule, type TrackerRecord, type TrackerItem } from "@/lib/storage";
+import { useSchedule, useUserPrefs, useTrackers } from "@/hooks/use-storage";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -40,19 +40,22 @@ function estimate1RM(weight: number, reps: number) {
   return Math.round(weight * (1 + reps / 30));
 }
 
-function getPR(records: LiftRecord[]) {
+function getPR(records: TrackerRecord[]) {
   if (!records.length) return null;
   return records.reduce((best, r) =>
-    estimate1RM(r.weight, r.reps) > estimate1RM(best.weight, best.reps) ? r : best
+    estimate1RM(r.value1 || 0, r.value2 || 0) > estimate1RM(best.value1 || 0, best.value2 || 0) ? r : best
   , records[0]);
 }
 
 export default function WeeklySchedule() {
   const schedule = useSchedule();
-  const lifts = useLifts();
+  const trackers = useTrackers();
   const userPrefs = useUserPrefs();
-  const categories = useCategories();
   const unit = userPrefs?.weightUnit ?? "kg";
+
+  const gymTracker = trackers.find(t => t.id === "gym");
+  const categories = gymTracker ? gymTracker.categories.map(c => c.name) : [];
+  const lifts = gymTracker ? gymTracker.categories.flatMap(c => c.items.map(i => ({ ...i, categoryName: c.name }))) : [];
 
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState<GymSchedule>(schedule);
@@ -86,18 +89,34 @@ export default function WeeklySchedule() {
   const handleLog = () => {
     const w = parseFloat(logWeight);
     const r = parseInt(logReps);
-    if (isNaN(w) || w <= 0 || isNaN(r) || r <= 0 || !logLiftId) return;
+    if (isNaN(w) || w <= 0 || isNaN(r) || r <= 0 || !logLiftId || !gymTracker) return;
     const today = format(new Date(), "yyyy-MM-dd");
-    const updated = lifts.map(l => {
-      if (l.id !== logLiftId) return l;
-      const existing = l.records.findIndex(rec => rec.date === logDate);
-      const newRec: LiftRecord = { date: logDate, weight: w, reps: r };
-      const records = existing >= 0
-        ? l.records.map((rec, i) => i === existing ? newRec : rec)
-        : [...l.records, newRec];
-      return { ...l, records };
+    
+    const newRec: TrackerRecord = { id: crypto.randomUUID(), date: logDate, value1: w, value2: r };
+
+    const update = trackers.map(t => {
+      if (t.id === "gym") {
+        return {
+          ...t,
+          categories: t.categories.map(c => ({
+            ...c,
+            items: c.items.map(i => {
+              if (i.id === logLiftId) {
+                const existing = i.records.findIndex(rec => rec.date === logDate);
+                const records = existing >= 0
+                  ? i.records.map((rec, idx) => idx === existing ? { ...rec, value1: w, value2: r } : rec)
+                  : [...i.records, newRec];
+                return { ...i, records };
+              }
+              return i;
+            })
+          }))
+        };
+      }
+      return t;
     });
-    storage.setLifts(updated);
+
+    storage.setTrackers(update);
     toast.success("Logged");
     setLogLiftId(null); setLogWeight(""); setLogReps("5"); setLogDate(today);
   };
@@ -155,7 +174,7 @@ export default function WeeklySchedule() {
           const dayCats = dayData.categories;
           const rest = isRest(label);
           const isSelected = selectedDay === day.key;
-          const dayLifts = lifts.filter(l => dayCats.includes(l.category));
+          const dayLifts = lifts.filter(l => dayCats.includes(l.categoryName));
 
           return (
             <motion.div key={day.key} initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }}
@@ -258,7 +277,7 @@ export default function WeeklySchedule() {
                         <div className="space-y-1">
                           {dayLifts.map(lift => {
                             const pr = getPR(lift.records);
-                            const color = getCategoryColor(lift.category, categories);
+                            const color = getCategoryColor(lift.categoryName, categories);
                             return (
                               <div key={lift.id}
                                 className="flex items-center gap-3 px-3 py-2.5 rounded-xl"
@@ -270,9 +289,9 @@ export default function WeeklySchedule() {
                                     <div className="flex items-center gap-1.5 mt-0.5">
                                       <Trophy className="w-2.5 h-2.5 shrink-0" style={{ color }} />
                                       <span className="text-[11px]" style={{ color: "#555" }}>
-                                        {pr.weight}{unit} × {pr.reps}
+                                        {pr.value1}{unit} × {pr.value2}
                                         <span className="ml-1.5" style={{ color: "#333" }}>
-                                          ~{estimate1RM(pr.weight, pr.reps)}{unit}
+                                          ~{estimate1RM(pr.value1 || 0, pr.value2 || 0)}{unit}
                                         </span>
                                       </span>
                                     </div>
@@ -294,7 +313,7 @@ export default function WeeklySchedule() {
                         <p className="text-[12px] py-2" style={{ color: "#2a2a2a" }}>
                           {dayCats.length === 0
                             ? "No categories assigned — tap Edit to add some"
-                            : "No matching exercises — add some in Lifts"}
+                            : "No matching exercises — add some in Trackers"}
                         </p>
                       )}
                     </div>
