@@ -130,16 +130,16 @@ export default function WeeklySchedule() {
         className="flex items-start justify-between">
         <div>
           <h1 className="text-3xl font-bold text-white tracking-tight">Schedule</h1>
-          <p className="text-sm mt-0.5" style={{ color: "#555" }}>Weekly training plan</p>
+          <p className="text-sm mt-0.5" style={{ color: "var(--text-dim)" }}>Weekly training plan</p>
         </div>
         {!editing ? (
           <Button onClick={() => { setDraft({ ...schedule }); setEditing(true); setSelectedDay(null); }} size="sm"
-            variant="outline" className="gap-2 border-[#222] text-[#888] hover:bg-white/[0.04] hover:text-white">
+            variant="outline" className="gap-2 border-[var(--border-strong)] text-[var(--text-secondary)] hover:bg-white/[0.04] hover:text-white">
             <Pencil className="w-3.5 h-3.5" /> Edit
           </Button>
         ) : (
           <div className="flex gap-2">
-            <Button onClick={cancel} size="sm" variant="outline" className="border-[#222] text-[#666] hover:bg-white/[0.04]">Cancel</Button>
+            <Button onClick={cancel} size="sm" variant="outline" className="border-[var(--border-strong)] text-[var(--text-tertiary)] hover:bg-white/[0.04]">Cancel</Button>
             <Button onClick={save} size="sm" className="gap-2 bg-primary hover:bg-primary/90">
               <Check className="w-3.5 h-3.5" /> Save
             </Button>
@@ -153,20 +153,20 @@ export default function WeeklySchedule() {
           { label: "Training days", value: trainingDays },
           { label: "Rest days", value: 7 - trainingDays },
         ].map(s => (
-          <div key={s.label} className="px-4 py-3 rounded-xl" style={{ background: "#111", border: "1px solid #1d1d1d" }}>
+          <div key={s.label} className="px-4 py-3 rounded-xl" style={{ background: "var(--panel)", border: "1px solid var(--border-s)" }}>
             <p className="text-2xl font-bold text-white">{s.value}</p>
-            <p className="text-[10px] font-semibold uppercase tracking-wider mt-0.5" style={{ color: "#444" }}>{s.label}</p>
+            <p className="text-[10px] font-semibold uppercase tracking-wider mt-0.5" style={{ color: "var(--text-muted)" }}>{s.label}</p>
           </div>
         ))}
       </div>
 
       {/* Hint */}
       {!editing && (
-        <p className="text-[11px]" style={{ color: "#333" }}>Tap a day to see its exercises and log a session</p>
+        <p className="text-[11px]" style={{ color: "var(--text-faint)" }}>Tap a day to see its exercises and log a session</p>
       )}
 
       {/* Day list */}
-      <div className="rounded-2xl overflow-hidden" style={{ border: "1px solid #1d1d1d" }}>
+      <div className="rounded-2xl overflow-hidden" style={{ border: "1px solid var(--border-s)" }}>
         {DAYS.map((day, i) => {
           const isToday = day.key === TODAY_KEY;
           const dayData = editing ? draft[day.key] : schedule[day.key];
@@ -179,27 +179,27 @@ export default function WeeklySchedule() {
           return (
             <motion.div key={day.key} initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }}
               transition={{ delay: i * 0.04 }}
-              style={{ borderTop: i > 0 ? "1px solid #1a1a1a" : "none" }}>
+              style={{ borderTop: i > 0 ? "1px solid var(--border-light)" : "none" }}>
               {/* Day row */}
               <div
                 onClick={() => handleDayTap(day.key)}
                 className="flex items-center gap-4 px-4 py-4 transition-colors"
                 style={{
-                  background: isSelected ? "#161616" : isToday ? "#161616" : "#111",
+                  background: isSelected ? "var(--panel-hover)" : isToday ? "var(--panel-hover)" : "var(--panel)",
                   cursor: editing ? "default" : "pointer",
                 }}>
                 {/* Day label */}
                 <div className="w-12 shrink-0">
                   <p className="text-xs font-bold uppercase tracking-wide"
-                    style={{ color: isToday ? "#fff" : "#555" }}>{day.short}</p>
+                    style={{ color: isToday ? "var(--text-heading)" : "var(--text-dim)" }}>{day.short}</p>
                   {isToday && <p className="text-[9px] font-semibold mt-0.5 text-primary">TODAY</p>}
                 </div>
 
                 {/* Icon */}
                 <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
-                  style={{ background: rest ? "#161616" : isToday || isSelected ? "#6366f115" : "#6366f10d" }}>
+                  style={{ background: rest ? "var(--panel-hover)" : isToday || isSelected ? "#6366f115" : "#6366f10d" }}>
                   <Dumbbell className="w-3.5 h-3.5"
-                    style={{ color: rest ? "#2a2a2a" : isToday || isSelected ? "#818cf8" : "#6366f180" }} />
+                    style={{ color: rest ? "var(--text-ghost)" : isToday || isSelected ? "#818cf8" : "#6366f180" }} />
                 </div>
 
                 {/* Label or input */}
@@ -207,11 +207,11 @@ export default function WeeklySchedule() {
                   <Input value={draft[day.key].label}
                     onChange={e => setDraft(d => ({ ...d, [day.key]: { ...d[day.key], label: e.target.value } }))}
                     onClick={e => e.stopPropagation()}
-                    className="flex-1 h-9 border-[#222] text-white text-sm"
-                    style={{ background: "#161616" }} />
+                    className="flex-1 h-9 border-[var(--border-strong)] text-white text-sm"
+                    style={{ background: "var(--panel-hover)" }} />
                 ) : (
                   <p className="flex-1 text-sm font-medium"
-                    style={{ color: rest ? "#333" : isToday ? "#e2e8f0" : "#888" }}>
+                    style={{ color: rest ? "var(--text-faint)" : isToday ? "var(--text-body)" : "var(--text-secondary)" }}>
                     {label}
                   </p>
                 )}
@@ -228,13 +228,13 @@ export default function WeeklySchedule() {
                 {/* Expand chevron */}
                 {!editing && !rest && (
                   <ChevronDown className="w-4 h-4 shrink-0 transition-transform"
-                    style={{ color: "#333", transform: isSelected ? "rotate(180deg)" : "rotate(0deg)" }} />
+                    style={{ color: "var(--text-faint)", transform: isSelected ? "rotate(180deg)" : "rotate(0deg)" }} />
                 )}
               </div>
 
               {/* Category selector (edit mode) */}
               {editing && (
-                <div className="px-4 pb-3 pt-0" style={{ background: "#111" }}>
+                <div className="px-4 pb-3 pt-0" style={{ background: "var(--panel)" }}>
                   <div className="flex flex-wrap gap-1.5">
                     {categories.map(cat => {
                       const color = getCategoryColor(cat, categories);
@@ -243,9 +243,9 @@ export default function WeeklySchedule() {
                         <button key={cat} onClick={() => toggleDraftCategory(day.key, cat)}
                           className="px-2.5 py-1 rounded-md text-[10px] font-semibold transition-all"
                           style={{
-                            background: active ? color + "20" : "#161616",
-                            border: `1px solid ${active ? color + "50" : "#222"}`,
-                            color: active ? color : "#444",
+                            background: active ? color + "20" : "var(--panel-hover)",
+                            border: `1px solid ${active ? color + "50" : "var(--border-strong)"}`,
+                            color: active ? color : "var(--text-muted)",
                           }}>{cat}</button>
                       );
                     })}
@@ -258,7 +258,7 @@ export default function WeeklySchedule() {
                 {isSelected && !rest && !editing && (
                   <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }}
                     exit={{ opacity: 0, height: 0 }} transition={{ duration: 0.2 }}
-                    className="overflow-hidden" style={{ borderTop: "1px solid #1a1a1a", background: "#0e0e0e" }}>
+                    className="overflow-hidden" style={{ borderTop: "1px solid var(--border-light)", background: "var(--panel-deep)" }}>
                     <div className="px-4 py-4 space-y-3">
                       {/* Category group header */}
                       <div className="flex items-center gap-2">
@@ -268,7 +268,7 @@ export default function WeeklySchedule() {
                             {cat}
                           </span>
                         ))}
-                        <span className="text-[10px] ml-auto" style={{ color: "#333" }}>
+                        <span className="text-[10px] ml-auto" style={{ color: "var(--text-faint)" }}>
                           {dayLifts.length} exercise{dayLifts.length !== 1 ? "s" : ""}
                         </span>
                       </div>
@@ -281,22 +281,22 @@ export default function WeeklySchedule() {
                             return (
                               <div key={lift.id}
                                 className="flex items-center gap-3 px-3 py-2.5 rounded-xl"
-                                style={{ background: "#111" }}>
+                                style={{ background: "var(--panel)" }}>
                                 <div className="w-1 h-8 rounded-full shrink-0" style={{ background: color + "40" }} />
                                 <div className="flex-1 min-w-0">
                                   <p className="text-sm font-medium text-white">{lift.name}</p>
                                   {pr ? (
                                     <div className="flex items-center gap-1.5 mt-0.5">
                                       <Trophy className="w-2.5 h-2.5 shrink-0" style={{ color }} />
-                                      <span className="text-[11px]" style={{ color: "#555" }}>
+                                      <span className="text-[11px]" style={{ color: "var(--text-dim)" }}>
                                         {pr.value1}{unit} × {pr.value2}
-                                        <span className="ml-1.5" style={{ color: "#333" }}>
+                                        <span className="ml-1.5" style={{ color: "var(--text-faint)" }}>
                                           ~{estimate1RM(pr.value1 || 0, pr.value2 || 0)}{unit}
                                         </span>
                                       </span>
                                     </div>
                                   ) : (
-                                    <p className="text-[11px] mt-0.5" style={{ color: "#333" }}>No records yet</p>
+                                    <p className="text-[11px] mt-0.5" style={{ color: "var(--text-faint)" }}>No records yet</p>
                                   )}
                                 </div>
                                 <button
@@ -310,7 +310,7 @@ export default function WeeklySchedule() {
                           })}
                         </div>
                       ) : (
-                        <p className="text-[12px] py-2" style={{ color: "#2a2a2a" }}>
+                        <p className="text-[12px] py-2" style={{ color: "var(--text-ghost)" }}>
                           {dayCats.length === 0
                             ? "No categories assigned — tap Edit to add some"
                             : "No matching exercises — add some in Trackers"}
@@ -327,33 +327,33 @@ export default function WeeklySchedule() {
 
       {/* Quick-log dialog */}
       <Dialog open={!!logLiftId} onOpenChange={o => !o && setLogLiftId(null)}>
-        <DialogContent className="max-w-xs" style={{ background: "#111", borderColor: "#1d1d1d" }}>
+        <DialogContent className="max-w-xs" style={{ background: "var(--panel)", borderColor: "var(--border-s)" }}>
           <DialogHeader>
             <DialogTitle className="text-white">{logLift?.name ?? "Log session"}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 pt-1">
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <Label className="text-sm" style={{ color: "#888" }}>Weight ({unit})</Label>
+                <Label className="text-sm" style={{ color: "var(--text-secondary)" }}>Weight ({unit})</Label>
                 <Input type="number" step="0.5" placeholder="80" value={logWeight}
                   onChange={e => setLogWeight(e.target.value)}
-                  className="h-11 border-[#222] text-white" style={{ background: "#161616" }} autoFocus />
+                  className="h-11 border-[var(--border-strong)] text-white" style={{ background: "var(--panel-hover)" }} autoFocus />
               </div>
               <div className="space-y-1.5">
-                <Label className="text-sm" style={{ color: "#888" }}>Reps</Label>
+                <Label className="text-sm" style={{ color: "var(--text-secondary)" }}>Reps</Label>
                 <Input type="number" placeholder="5" value={logReps}
                   onChange={e => setLogReps(e.target.value)}
-                  className="h-11 border-[#222] text-white" style={{ background: "#161616" }} />
+                  className="h-11 border-[var(--border-strong)] text-white" style={{ background: "var(--panel-hover)" }} />
               </div>
             </div>
             <div className="space-y-1.5">
-              <Label className="text-sm" style={{ color: "#888" }}>Date</Label>
+              <Label className="text-sm" style={{ color: "var(--text-secondary)" }}>Date</Label>
               <Input type="date" value={logDate} onChange={e => setLogDate(e.target.value)}
-                className="h-11 border-[#222] text-white" style={{ background: "#161616" }} />
+                className="h-11 border-[var(--border-strong)] text-white" style={{ background: "var(--panel-hover)" }} />
             </div>
             {logWeight && logReps && (
-              <div className="py-2 px-3 rounded-xl text-center" style={{ background: "#161616" }}>
-                <p className="text-[11px]" style={{ color: "#555" }}>Estimated 1RM</p>
+              <div className="py-2 px-3 rounded-xl text-center" style={{ background: "var(--panel-hover)" }}>
+                <p className="text-[11px]" style={{ color: "var(--text-dim)" }}>Estimated 1RM</p>
                 <p className="text-lg font-bold text-white">
                   {estimate1RM(parseFloat(logWeight) || 0, parseInt(logReps) || 1)} {unit}
                 </p>

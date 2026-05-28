@@ -29,7 +29,7 @@ export function useHealthTargets() {
 export function useDailyLog(date: Date) {
   const dateStr = format(date, 'yyyy-MM-dd');
   const logs = useStore("daily_logs", storage.getDailyLogs);
-  return logs[dateStr] || { water: 0, calories: 0, protein: 0, sleep: 0, completedGoals: [] };
+  return logs[dateStr] || { water: 0, calories: 0, protein: 0, sleep: 0, completedGoals: [], notes: "" };
 }
 
 export function useGoals() {

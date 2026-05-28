@@ -50,22 +50,22 @@ function QuickLogModal({
   const content = (
     <div className="space-y-5 py-2">
       <div className="flex justify-between text-sm py-3 px-4 rounded-xl" style={{ background: "#181818" }}>
-        <span style={{ color: "#555" }}>Target</span>
+        <span style={{ color: "var(--text-dim)" }}>Target</span>
         <span className="font-semibold" style={{ color }}>{target} {unit}</span>
       </div>
       <div className="flex items-center gap-3">
         <button onClick={() => setVal(v => String(Math.max(0, parseFloat(v || "0") - step)))}
           className="w-11 h-11 rounded-xl text-lg font-bold transition-colors"
-          style={{ background: "#1a1a1a", color: "#fff" }}>−</button>
+          style={{ background: "var(--border-light)", color: "var(--text-heading)" }}>−</button>
         <Input type="number" value={val} onChange={e => setVal(e.target.value)}
           onKeyDown={e => e.key === "Enter" && save()}
           className="text-center text-2xl font-bold border-0 text-white"
-          style={{ background: "#1a1a1a" }} autoFocus />
+          style={{ background: "var(--border-light)" }} autoFocus />
         <button onClick={() => setVal(v => String(parseFloat(v || "0") + step))}
           className="w-11 h-11 rounded-xl text-lg font-bold transition-colors"
-          style={{ background: "#1a1a1a", color: "#fff" }}>+</button>
+          style={{ background: "var(--border-light)", color: "var(--text-heading)" }}>+</button>
       </div>
-      <p className="text-center text-xs" style={{ color: "#555" }}>{unit}</p>
+      <p className="text-center text-xs" style={{ color: "var(--text-dim)" }}>{unit}</p>
       <Button onClick={save} className="w-full font-semibold" style={{ background: color, border: "none" }}>
         Save
       </Button>
@@ -75,7 +75,7 @@ function QuickLogModal({
   if (isMobile) {
     return (
       <Drawer open={open} onOpenChange={o => !o && onClose()}>
-        <DrawerContent style={{ background: "#111", borderColor: "#1d1d1d" }}>
+        <DrawerContent style={{ background: "var(--panel)", borderColor: "var(--border-s)" }}>
           <DrawerHeader><DrawerTitle className="text-white">{label}</DrawerTitle></DrawerHeader>
           <div className="px-4 pb-8">{content}</div>
         </DrawerContent>
@@ -84,7 +84,7 @@ function QuickLogModal({
   }
   return (
     <Dialog open={open} onOpenChange={o => !o && onClose()}>
-      <DialogContent style={{ background: "#111", borderColor: "#1d1d1d" }}>
+      <DialogContent style={{ background: "var(--panel)", borderColor: "var(--border-s)" }}>
         <DialogHeader><DialogTitle className="text-white">{label}</DialogTitle></DialogHeader>
         {content}
       </DialogContent>
@@ -165,26 +165,26 @@ export default function Dashboard() {
       <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}
         className="flex items-start justify-between">
         <div>
-          <p className="text-[13px] font-medium uppercase tracking-widest mb-1" style={{ color: "#444" }}>{greeting}</p>
+          <p className="text-[13px] font-medium uppercase tracking-widest mb-1" style={{ color: "var(--text-muted)" }}>{greeting}</p>
           <h1 className="text-3xl font-bold text-white tracking-tight">{format(selectedDate, "EEEE")}</h1>
-          <p className="text-sm mt-0.5" style={{ color: "#555" }}>{format(selectedDate, "MMMM d, yyyy")}</p>
+          <p className="text-sm mt-0.5" style={{ color: "var(--text-dim)" }}>{format(selectedDate, "MMMM d, yyyy")}</p>
         </div>
         {/* Date Navigator */}
         <div className="flex items-center gap-1">
           <button onClick={() => setSelectedDate(d => subDays(d, 1))}
             className="w-8 h-8 rounded-lg flex items-center justify-center transition-colors hover:bg-white/[0.05]"
-            style={{ color: "#555" }}>
+            style={{ color: "var(--text-dim)" }}>
             <ChevronLeft className="w-5 h-5" />
           </button>
           <button
             onClick={() => setSelectedDate(new Date())}
             className="text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors hover:bg-white/[0.05]"
-            style={{ color: isToday ? "#888" : "#6366f1", background: isToday ? "transparent" : "#6366f115" }}>
+            style={{ color: isToday ? "var(--text-secondary)" : "#6366f1", background: isToday ? "transparent" : "#6366f115" }}>
             {isToday ? "Today" : format(selectedDate, "MMM d")}
           </button>
           <button onClick={() => { if (!isToday) setSelectedDate(d => { const next = addDays(d, 1); return next > new Date() ? new Date() : next; }); }}
             className="w-8 h-8 rounded-lg flex items-center justify-center transition-colors hover:bg-white/[0.05]"
-            style={{ color: isToday ? "#2a2a2a" : "#555" }}>
+            style={{ color: isToday ? "var(--text-ghost)" : "var(--text-dim)" }}>
             <ChevronRight className="w-5 h-5" />
           </button>
         </div>
@@ -202,7 +202,7 @@ export default function Dashboard() {
             <Zap className="w-4 h-4" style={{ color: "#818cf8" }} />
             <p className="text-[10px] font-semibold uppercase tracking-widest" style={{ color: "#818cf880" }}>{isToday ? "Today's Score" : "Score"}</p>
           </div>
-          <p className="text-4xl font-black text-white tracking-tight">{dailyScore}<span className="text-lg" style={{ color: "#555" }}>%</span></p>
+          <p className="text-4xl font-black text-white tracking-tight">{dailyScore}<span className="text-lg" style={{ color: "var(--text-dim)" }}>%</span></p>
         </div>
 
         {/* Today's Workout */}
@@ -225,18 +225,18 @@ export default function Dashboard() {
 
       {/* Progress Rings */}
       <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.08 }}>
-        <p className="text-[11px] font-semibold uppercase tracking-widest mb-4" style={{ color: "#444" }}>{isToday ? "Today's Progress" : "Progress"}</p>
+        <p className="text-[11px] font-semibold uppercase tracking-widest mb-4" style={{ color: "var(--text-muted)" }}>{isToday ? "Today's Progress" : "Progress"}</p>
         <div className="grid grid-cols-4 gap-3">
           {metrics.map(m => {
             const pct = Math.round(Math.min(m.value / Math.max(m.target, 1), 1) * 100);
             return (
               <button key={m.field} onClick={() => setActiveModal(m.field)}
                 className="flex flex-col items-center gap-2 p-3 rounded-2xl transition-colors hover:bg-white/[0.02]"
-                style={{ background: "#111", border: "1px solid #1d1d1d" }}>
+                style={{ background: "var(--panel)", border: "1px solid var(--border-s)" }}>
                 <RingProgress value={m.value} max={m.target} size={72} strokeWidth={5} color={m.color} icon={m.icon} unit={m.unit} />
                 <div className="text-center">
-                  <p className="text-[11px] font-semibold" style={{ color: "#555" }}>{m.label}</p>
-                  <p className="text-[10px]" style={{ color: pct >= 100 ? m.color : "#444" }}>{pct}%</p>
+                  <p className="text-[11px] font-semibold" style={{ color: "var(--text-dim)" }}>{m.label}</p>
+                  <p className="text-[10px]" style={{ color: pct >= 100 ? m.color : "var(--text-muted)" }}>{pct}%</p>
                 </div>
               </button>
             );
@@ -247,7 +247,7 @@ export default function Dashboard() {
           {metrics.map(m => (
             <button key={m.field} onClick={() => setActiveModal(m.field)}
               className="flex-1 flex items-center justify-center gap-1 py-2 rounded-xl text-[11px] font-semibold transition-colors"
-              style={{ background: "#111", border: "1px solid #1d1d1d", color: "#444" }}>
+              style={{ background: "var(--panel)", border: "1px solid var(--border-s)", color: "var(--text-muted)" }}>
               <Plus className="w-3 h-3" />
               {m.label}
             </button>
@@ -259,12 +259,12 @@ export default function Dashboard() {
       {goals.length > 0 && (
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.12 }}>
           <div className="flex items-center justify-between mb-4">
-            <p className="text-[11px] font-semibold uppercase tracking-widest" style={{ color: "#444" }}>Habits</p>
-            <p className="text-[11px]" style={{ color: "#444" }}>
+            <p className="text-[11px] font-semibold uppercase tracking-widest" style={{ color: "var(--text-muted)" }}>Habits</p>
+            <p className="text-[11px]" style={{ color: "var(--text-muted)" }}>
               {(log.completedGoals || []).filter(id => goals.find(g => g.id === id)).length} / {goals.length}
             </p>
           </div>
-          <div className="rounded-2xl overflow-hidden" style={{ border: "1px solid #1d1d1d" }}>
+          <div className="rounded-2xl overflow-hidden" style={{ border: "1px solid var(--border-s)" }}>
             {goals.map((goal, i) => {
               const done = (log.completedGoals || []).includes(goal.id);
               const streak = getStreak(goal.id);
@@ -272,12 +272,12 @@ export default function Dashboard() {
                 <button key={goal.id} onClick={() => toggleGoal(goal.id)}
                   className="w-full flex items-center gap-3 px-4 py-3.5 text-left transition-colors hover:bg-white/[0.02]"
                   style={{
-                    background: done ? "#131313" : "#111",
-                    borderTop: i > 0 ? "1px solid #1a1a1a" : "none",
+                    background: done ? "var(--panel-active)" : "var(--panel)",
+                    borderTop: i > 0 ? "1px solid var(--border-light)" : "none",
                   }}>
                   <div className="w-5 h-5 rounded-md shrink-0 flex items-center justify-center border-2 transition-all"
                     style={{
-                      borderColor: done ? goal.color : "#2a2a2a",
+                      borderColor: done ? goal.color : "var(--text-ghost)",
                       background: done ? goal.color + "22" : "transparent",
                     }}>
                     {done && (
@@ -286,11 +286,11 @@ export default function Dashboard() {
                       </svg>
                     )}
                   </div>
-                  <span className="flex-1 text-sm font-medium" style={{ color: done ? "#444" : "#ccc" }}>
+                  <span className="flex-1 text-sm font-medium" style={{ color: done ? "var(--text-muted)" : "#ccc" }}>
                     {goal.name}
                   </span>
                   {streak > 0 && isToday && (
-                    <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full" style={{ background: "#1a1a1a", color: "#f97316" }}>
+                    <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full" style={{ background: "var(--border-light)", color: "#f97316" }}>
                       🔥 {streak}d
                     </span>
                   )}
@@ -300,6 +300,30 @@ export default function Dashboard() {
           </div>
         </motion.div>
       )}
+
+      {/* Daily Notes */}
+      <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.13 }}>
+        <p className="text-[11px] font-semibold uppercase tracking-widest mb-4" style={{ color: "var(--text-muted)" }}>Daily Notes</p>
+        <div className="rounded-2xl p-4 transition-colors focus-within:border-primary/50 relative" style={{ background: "var(--panel)", border: "1px solid var(--border-s)" }}>
+          <textarea
+            value={log.notes || ""}
+            onChange={e => {
+              const text = e.target.value;
+              const words = text.trim() ? text.trim().split(/\s+/) : [];
+              if (words.length <= 100) {
+                storage.updateDailyLog(selectedDateStr, { notes: text });
+              }
+            }}
+            placeholder="Write a brief journal or thoughts (max 100 words)..."
+            className="w-full bg-transparent resize-none outline-none text-sm min-h-[80px]"
+            style={{ color: "var(--text-heading)", caretColor: "var(--primary-glow)" }}
+          />
+          <div className="absolute bottom-3 right-4 text-[10px] font-medium" 
+               style={{ color: ((log.notes || "").trim().split(/\s+/).filter(Boolean).length) >= 100 ? "var(--destructive)" : "var(--text-faint)" }}>
+            {log.notes?.trim() ? log.notes.trim().split(/\s+/).length : 0} / 100 words
+          </div>
+        </div>
+      </motion.div>
 
       {/* Tracker Summary Cards */}
       {activeTrackers.length > 0 && (
@@ -327,8 +351,8 @@ export default function Dashboard() {
 
             return (
               <Link key={t.id} href={`/trackers/${t.id}`}>
-                <div className="rounded-2xl p-4 cursor-pointer transition-all hover:border-[#333] relative overflow-hidden"
-                  style={{ background: "#111", border: "1px solid #1d1d1d" }}>
+                <div className="rounded-2xl p-4 cursor-pointer transition-all hover:border-[var(--text-faint)] relative overflow-hidden"
+                  style={{ background: "var(--panel)", border: "1px solid var(--border-s)" }}>
                   <div className="absolute -right-3 -bottom-3 w-16 h-16 rounded-full opacity-[0.05]"
                     style={{ background: `radial-gradient(circle, ${i % 2 === 0 ? "#f59e0b" : "#6366f1"}, transparent)` }} />
                   <div className="flex items-center gap-2 mb-3">
@@ -336,15 +360,15 @@ export default function Dashboard() {
                      t.icon === "code" ? <Code2 className="w-4 h-4" style={{ color: "#6366f1" }} /> :
                      t.icon === "book" ? <BookOpen className="w-4 h-4" style={{ color: "#10b981" }} /> :
                      <Activity className="w-4 h-4" style={{ color: "#22d3ee" }} />}
-                    <p className="text-[10px] font-semibold uppercase tracking-widest" style={{ color: "#444" }}>{t.name}</p>
+                    <p className="text-[10px] font-semibold uppercase tracking-widest" style={{ color: "var(--text-muted)" }}>{t.name}</p>
                   </div>
                   <p className="text-3xl font-black text-white">{totalItems}</p>
                   {extraStat ? (
-                    <div className="text-[10px] mt-1" style={{ color: "#555" }}>
+                    <div className="text-[10px] mt-1" style={{ color: "var(--text-dim)" }}>
                       {extraStat}
                     </div>
                   ) : (
-                    <p className="text-[10px] mt-1" style={{ color: "#555" }}>Items</p>
+                    <p className="text-[10px] mt-1" style={{ color: "var(--text-dim)" }}>Items</p>
                   )}
                 </div>
               </Link>
@@ -357,13 +381,13 @@ export default function Dashboard() {
       <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.16 }}
         className="grid grid-cols-2 gap-4">
         {/* Calories */}
-        <div className="rounded-2xl p-4 space-y-3" style={{ background: "#111", border: "1px solid #1d1d1d" }}>
-          <p className="text-[11px] font-semibold uppercase tracking-widest" style={{ color: "#444" }}>Calories</p>
+        <div className="rounded-2xl p-4 space-y-3" style={{ background: "var(--panel)", border: "1px solid var(--border-s)" }}>
+          <p className="text-[11px] font-semibold uppercase tracking-widest" style={{ color: "var(--text-muted)" }}>Calories</p>
           <ResponsiveContainer width="100%" height={90}>
             <BarChart data={weekData} margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
-              <XAxis dataKey="day" tick={{ fontSize: 9, fill: "#333" }} axisLine={false} tickLine={false} />
-              <Tooltip contentStyle={{ background: "#161616", border: "1px solid #222", borderRadius: 8, fontSize: 11 }}
-                labelStyle={{ color: "#666" }} itemStyle={{ color: "#f97316" }} />
+              <XAxis dataKey="day" tick={{ fontSize: 9, fill: "var(--text-faint)" }} axisLine={false} tickLine={false} />
+              <Tooltip contentStyle={{ background: "var(--panel-hover)", border: "1px solid var(--border-strong)", borderRadius: 8, fontSize: 11 }}
+                labelStyle={{ color: "var(--text-tertiary)" }} itemStyle={{ color: "#f97316" }} />
               <ReferenceLine y={t.calories} stroke="#f97316" strokeDasharray="3 3" strokeOpacity={0.3} />
               <Bar dataKey="calories" fill="#f97316" radius={[3, 3, 0, 0]} opacity={0.7} />
             </BarChart>
@@ -371,9 +395,9 @@ export default function Dashboard() {
         </div>
 
         {/* Weight */}
-        <div className="rounded-2xl p-4 space-y-3" style={{ background: "#111", border: "1px solid #1d1d1d" }}>
+        <div className="rounded-2xl p-4 space-y-3" style={{ background: "var(--panel)", border: "1px solid var(--border-s)" }}>
           <div className="flex items-center justify-between">
-            <p className="text-[11px] font-semibold uppercase tracking-widest" style={{ color: "#444" }}>Weight</p>
+            <p className="text-[11px] font-semibold uppercase tracking-widest" style={{ color: "var(--text-muted)" }}>Weight</p>
             {weightLogs.length >= 2 && (
               <span className={cn("text-[10px] font-semibold flex items-center gap-0.5",
                 weightLogs[weightLogs.length - 1].weight < weightLogs[0].weight ? "text-emerald-500" : "text-red-500")}>
@@ -386,16 +410,16 @@ export default function Dashboard() {
           {weightData.length > 1 ? (
             <ResponsiveContainer width="100%" height={90}>
               <LineChart data={weightData} margin={{ top: 4, right: 4, bottom: 0, left: 0 }}>
-                <XAxis dataKey="date" tick={{ fontSize: 9, fill: "#333" }} axisLine={false} tickLine={false} />
+                <XAxis dataKey="date" tick={{ fontSize: 9, fill: "var(--text-faint)" }} axisLine={false} tickLine={false} />
                 <YAxis hide domain={["auto", "auto"]} />
-                <Tooltip contentStyle={{ background: "#161616", border: "1px solid #222", borderRadius: 8, fontSize: 11 }}
-                  labelStyle={{ color: "#666" }} itemStyle={{ color: "#6366f1" }} />
+                <Tooltip contentStyle={{ background: "var(--panel-hover)", border: "1px solid var(--border-strong)", borderRadius: 8, fontSize: 11 }}
+                  labelStyle={{ color: "var(--text-tertiary)" }} itemStyle={{ color: "#6366f1" }} />
                 <Line type="monotone" dataKey="weight" stroke="#6366f1" strokeWidth={2}
                   dot={false} activeDot={{ r: 4, fill: "#6366f1", strokeWidth: 0 }} />
               </LineChart>
             </ResponsiveContainer>
           ) : (
-            <div className="h-[90px] flex items-center justify-center text-[11px]" style={{ color: "#333" }}>
+            <div className="h-[90px] flex items-center justify-center text-[11px]" style={{ color: "var(--text-faint)" }}>
               Log weigh-ins to see trend
             </div>
           )}

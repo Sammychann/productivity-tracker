@@ -58,7 +58,7 @@ export default function TrackerDetail() {
       <div className="text-center py-12">
         <p className="text-white font-bold text-xl">Module not found</p>
         <Link href="/trackers">
-          <Button variant="link" className="text-[#888] mt-2">Go back</Button>
+          <Button variant="link" className="text-[var(--text-secondary)] mt-2">Go back</Button>
         </Link>
       </div>
     );
@@ -184,13 +184,13 @@ export default function TrackerDetail() {
           </Link>
           <div>
             <h1 className="text-3xl font-bold text-white tracking-tight">{tracker.name}</h1>
-            <p className="text-sm mt-0.5 uppercase tracking-widest font-semibold" style={{ color: "#555" }}>
+            <p className="text-sm mt-0.5 uppercase tracking-widest font-semibold" style={{ color: "var(--text-dim)" }}>
               {totalItems} items
             </p>
           </div>
         </div>
         <Button onClick={() => setShowAddCat(true)} size="sm" variant="outline"
-          className="gap-2 border-[#222] text-[#888] hover:bg-white/[0.04] hover:text-white">
+          className="gap-2 border-[var(--border-strong)] text-[var(--text-secondary)] hover:bg-white/[0.04] hover:text-white">
           <Plus className="w-4 h-4" /> Category
         </Button>
       </motion.div>
@@ -203,11 +203,11 @@ export default function TrackerDetail() {
 
           return (
             <motion.div key={cat.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: ci * 0.05 }}>
-              <div className="rounded-2xl overflow-hidden" style={{ border: "1px solid #1d1d1d" }}>
+              <div className="rounded-2xl overflow-hidden" style={{ border: "1px solid var(--border-s)" }}>
                 {/* Category Header */}
                 <div onClick={() => setExpandedCat(isExpandedCat ? null : cat.id)}
                   className="flex items-center gap-3 px-4 py-4 cursor-pointer transition-colors hover:bg-white/[0.01]"
-                  style={{ background: isExpandedCat ? "#131313" : "#111" }}>
+                  style={{ background: isExpandedCat ? "var(--panel-active)" : "var(--panel)" }}>
                   <div className="w-1.5 h-8 rounded-full shrink-0" style={{ background: color }} />
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
@@ -223,7 +223,7 @@ export default function TrackerDetail() {
                     <Plus className="w-3.5 h-3.5 inline mr-1" />Add
                   </button>
                   <ChevronDown className="w-4 h-4 shrink-0 transition-transform"
-                    style={{ color: "#333", transform: isExpandedCat ? "rotate(180deg)" : "rotate(0deg)" }} />
+                    style={{ color: "var(--text-faint)", transform: isExpandedCat ? "rotate(180deg)" : "rotate(0deg)" }} />
                 </div>
 
                 {/* Items List */}
@@ -231,7 +231,7 @@ export default function TrackerDetail() {
                   {isExpandedCat && (
                     <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }}
                       exit={{ opacity: 0, height: 0 }} transition={{ duration: 0.2 }}
-                      className="overflow-hidden" style={{ borderTop: "1px solid #1a1a1a", background: "#0e0e0e" }}>
+                      className="overflow-hidden" style={{ borderTop: "1px solid var(--border-light)", background: "var(--panel-deep)" }}>
                       
                       {tracker.type === "completion" ? (
                         // COMPLETION TYPE RENDERING (Like DSA)
@@ -239,7 +239,7 @@ export default function TrackerDetail() {
                           {cat.items.map(item => {
                             const rec = item.records[item.records.length - 1]; // latest record
                             return (
-                              <div key={item.id} className="flex items-center gap-3 px-3 py-2.5 rounded-xl" style={{ background: "#111" }}>
+                              <div key={item.id} className="flex items-center gap-3 px-3 py-2.5 rounded-xl" style={{ background: "var(--panel)" }}>
                                 {tracker.hasDifficulty && (
                                   <div className="w-2 h-2 rounded-full shrink-0"
                                     style={{ background: DIFFICULTY_COLORS[rec?.status || "Medium"] }} />
@@ -249,19 +249,19 @@ export default function TrackerDetail() {
                                     <p className="text-sm font-medium text-white truncate">{item.name}</p>
                                     {rec?.url && (
                                       <a href={rec.url} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()}
-                                        className="shrink-0 transition-colors hover:text-primary" style={{ color: "#555" }}>
+                                        className="shrink-0 transition-colors hover:text-primary" style={{ color: "var(--text-dim)" }}>
                                         <ExternalLink className="w-3 h-3" />
                                       </a>
                                     )}
                                   </div>
                                   <div className="flex items-center gap-2 mt-0.5">
                                     {rec?.date && (
-                                      <span className="text-[10px]" style={{ color: "#333" }}>
+                                      <span className="text-[10px]" style={{ color: "var(--text-faint)" }}>
                                         {format(new Date(rec.date + "T12:00:00"), "MMM d, yyyy")}
                                       </span>
                                     )}
                                     {rec?.notes && (
-                                      <span className="text-[10px] truncate" style={{ color: "#444" }}>— {rec.notes}</span>
+                                      <span className="text-[10px] truncate" style={{ color: "var(--text-muted)" }}>— {rec.notes}</span>
                                     )}
                                   </div>
                                 </div>
@@ -273,7 +273,7 @@ export default function TrackerDetail() {
                                 )}
                                 <button onClick={() => handleDeleteItem(cat.id, item.id)}
                                   className="w-6 h-6 rounded flex items-center justify-center transition-colors hover:text-red-500 shrink-0"
-                                  style={{ color: "#2a2a2a" }}>
+                                  style={{ color: "var(--text-ghost)" }}>
                                   <Trash2 className="w-3 h-3" />
                                 </button>
                               </div>
@@ -290,35 +290,35 @@ export default function TrackerDetail() {
                               : null;
                             
                             return (
-                              <div key={item.id} className="rounded-xl overflow-hidden" style={{ background: "#111", border: "1px solid #1a1a1a" }}>
+                              <div key={item.id} className="rounded-xl overflow-hidden" style={{ background: "var(--panel)", border: "1px solid var(--border-light)" }}>
                                 <div onClick={() => setExpandedItem(isExpandedItem ? null : item.id)}
                                   className="flex items-center justify-between p-3 cursor-pointer hover:bg-white/[0.02] transition-colors">
                                   <div>
                                     <p className="text-sm font-semibold text-white">{item.name}</p>
-                                    <p className="text-[10px] mt-0.5" style={{ color: "#555" }}>
+                                    <p className="text-[10px] mt-0.5" style={{ color: "var(--text-dim)" }}>
                                       {item.records.length} logs {prRecord && <span className="ml-2 text-emerald-500 font-medium">PR: {prRecord.value1} {tracker.metric1}</span>}
                                     </p>
                                   </div>
-                                  <ChevronDown className="w-4 h-4 transition-transform" style={{ color: "#444", transform: isExpandedItem ? "rotate(180deg)" : "rotate(0deg)" }} />
+                                  <ChevronDown className="w-4 h-4 transition-transform" style={{ color: "var(--text-muted)", transform: isExpandedItem ? "rotate(180deg)" : "rotate(0deg)" }} />
                                 </div>
                                 
                                 <AnimatePresence>
                                   {isExpandedItem && (
                                     <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }}
-                                      className="overflow-hidden bg-[#0a0a0a] border-t border-[#1a1a1a]">
+                                      className="overflow-hidden bg-[#0a0a0a] border-t border-[var(--border-light)]">
                                       <div className="p-3 space-y-3">
                                         <div className="flex gap-2">
-                                          <Input type="number" placeholder={tracker.metric1 || "Val 1"} value={val1} onChange={e => setVal1(e.target.value)} className="h-9 text-xs border-[#222] bg-[#111] text-white" />
-                                          <Input type="number" placeholder={tracker.metric2 || "Val 2"} value={val2} onChange={e => setVal2(e.target.value)} className="h-9 text-xs border-[#222] bg-[#111] text-white" />
+                                          <Input type="number" placeholder={tracker.metric1 || "Val 1"} value={val1} onChange={e => setVal1(e.target.value)} className="h-9 text-xs border-[var(--border-strong)] bg-[var(--panel)] text-white" />
+                                          <Input type="number" placeholder={tracker.metric2 || "Val 2"} value={val2} onChange={e => setVal2(e.target.value)} className="h-9 text-xs border-[var(--border-strong)] bg-[var(--panel)] text-white" />
                                           <Button onClick={() => handleAddRecord(cat.id, item.id)} size="sm" className="h-9 px-4 bg-primary hover:bg-primary/90 text-xs">Log</Button>
-                                          <Button onClick={() => handleDeleteItem(cat.id, item.id)} size="sm" variant="outline" className="h-9 w-9 p-0 border-[#222] hover:bg-red-500/20 text-[#888] hover:text-red-500"><Trash2 className="w-3.5 h-3.5" /></Button>
+                                          <Button onClick={() => handleDeleteItem(cat.id, item.id)} size="sm" variant="outline" className="h-9 w-9 p-0 border-[var(--border-strong)] hover:bg-red-500/20 text-[var(--text-secondary)] hover:text-red-500"><Trash2 className="w-3.5 h-3.5" /></Button>
                                         </div>
                                         {item.records.length > 0 && (
                                           <div className="space-y-1">
                                             {[...item.records].reverse().map(rec => (
-                                              <div key={rec.id} className="flex items-center justify-between py-1.5 px-2 rounded bg-[#111]">
-                                                <span className="text-[10px]" style={{ color: "#555" }}>{format(new Date(rec.date + "T12:00:00"), "MMM d, yyyy")}</span>
-                                                <span className="text-xs font-mono font-medium text-white">{rec.value1} {tracker.metric1} <span style={{ color: "#555" }}>×</span> {rec.value2} {tracker.metric2}</span>
+                                              <div key={rec.id} className="flex items-center justify-between py-1.5 px-2 rounded bg-[var(--panel)]">
+                                                <span className="text-[10px]" style={{ color: "var(--text-dim)" }}>{format(new Date(rec.date + "T12:00:00"), "MMM d, yyyy")}</span>
+                                                <span className="text-xs font-mono font-medium text-white">{rec.value1} {tracker.metric1} <span style={{ color: "var(--text-dim)" }}>×</span> {rec.value2} {tracker.metric2}</span>
                                               </div>
                                             ))}
                                           </div>
@@ -336,7 +336,7 @@ export default function TrackerDetail() {
                       <div className="px-4 pb-3 flex justify-end">
                         <button onClick={() => handleDeleteCategory(cat.id)}
                           className="text-[10px] font-medium px-2 py-1 rounded transition-colors hover:text-red-500"
-                          style={{ color: "#333" }}>Delete category</button>
+                          style={{ color: "var(--text-faint)" }}>Delete category</button>
                       </div>
                     </motion.div>
                   )}
@@ -349,11 +349,11 @@ export default function TrackerDetail() {
 
       {/* Add Category Dialog */}
       <Dialog open={showAddCat} onOpenChange={setShowAddCat}>
-        <DialogContent className="max-w-xs" style={{ background: "#111", borderColor: "#1d1d1d" }}>
+        <DialogContent className="max-w-xs" style={{ background: "var(--panel)", borderColor: "var(--border-s)" }}>
           <DialogHeader><DialogTitle className="text-white">Add Category</DialogTitle></DialogHeader>
           <div className="space-y-3 pt-2">
             <Input placeholder="e.g. Legs, Strings..." value={newCatName} onChange={e => setNewCatName(e.target.value)}
-              onKeyDown={e => e.key === "Enter" && handleAddCategory()} className="border-[#222] text-white bg-[#161616]" autoFocus />
+              onKeyDown={e => e.key === "Enter" && handleAddCategory()} className="border-[var(--border-strong)] text-white bg-[var(--panel-hover)]" autoFocus />
             <Button onClick={handleAddCategory} className="w-full bg-primary hover:bg-primary/90">Add Category</Button>
           </div>
         </DialogContent>
@@ -361,28 +361,28 @@ export default function TrackerDetail() {
 
       {/* Add Item Dialog */}
       <Dialog open={!!showAddItem} onOpenChange={o => { if (!o) setShowAddItem(null); }}>
-        <DialogContent className="max-w-xs" style={{ background: "#111", borderColor: "#1d1d1d" }}>
+        <DialogContent className="max-w-xs" style={{ background: "var(--panel)", borderColor: "var(--border-s)" }}>
           <DialogHeader><DialogTitle className="text-white">Add Item</DialogTitle></DialogHeader>
           <div className="space-y-3 pt-2">
             <div className="space-y-1.5">
-              <Label className="text-sm" style={{ color: "#888" }}>Name</Label>
+              <Label className="text-sm" style={{ color: "var(--text-secondary)" }}>Name</Label>
               <Input placeholder="e.g. Bench Press" value={newItemName} onChange={e => setNewItemName(e.target.value)}
-                className="border-[#222] text-white bg-[#161616]" autoFocus />
+                className="border-[var(--border-strong)] text-white bg-[var(--panel-hover)]" autoFocus />
             </div>
             
             {tracker.type === "completion" && (
               <>
                 {tracker.hasDifficulty && (
                   <div className="space-y-1.5">
-                    <Label className="text-sm" style={{ color: "#888" }}>Difficulty</Label>
+                    <Label className="text-sm" style={{ color: "var(--text-secondary)" }}>Difficulty</Label>
                     <div className="flex gap-2">
                       {(["Easy", "Medium", "Hard"] as const).map(d => (
                         <button key={d} onClick={() => setNewStatus(d)}
                           className="flex-1 px-3 py-2 rounded-lg text-xs font-semibold transition-all"
                           style={{
-                            background: newStatus === d ? DIFFICULTY_COLORS[d] + "20" : "#161616",
-                            border: `1px solid ${newStatus === d ? DIFFICULTY_COLORS[d] + "50" : "#222"}`,
-                            color: newStatus === d ? DIFFICULTY_COLORS[d] : "#444",
+                            background: newStatus === d ? DIFFICULTY_COLORS[d] + "20" : "var(--panel-hover)",
+                            border: `1px solid ${newStatus === d ? DIFFICULTY_COLORS[d] + "50" : "var(--border-strong)"}`,
+                            color: newStatus === d ? DIFFICULTY_COLORS[d] : "var(--text-muted)",
                           }}>{d}</button>
                       ))}
                     </div>
@@ -390,13 +390,13 @@ export default function TrackerDetail() {
                 )}
                 {tracker.hasUrl && (
                   <div className="space-y-1.5">
-                    <Label className="text-sm" style={{ color: "#888" }}>URL</Label>
-                    <Input placeholder="https://..." value={newUrl} onChange={e => setNewUrl(e.target.value)} className="border-[#222] text-white bg-[#161616]" />
+                    <Label className="text-sm" style={{ color: "var(--text-secondary)" }}>URL</Label>
+                    <Input placeholder="https://..." value={newUrl} onChange={e => setNewUrl(e.target.value)} className="border-[var(--border-strong)] text-white bg-[var(--panel-hover)]" />
                   </div>
                 )}
                 <div className="space-y-1.5">
-                  <Label className="text-sm" style={{ color: "#888" }}>Notes</Label>
-                  <Input placeholder="Optional notes" value={newNotes} onChange={e => setNewNotes(e.target.value)} className="border-[#222] text-white bg-[#161616]" />
+                  <Label className="text-sm" style={{ color: "var(--text-secondary)" }}>Notes</Label>
+                  <Input placeholder="Optional notes" value={newNotes} onChange={e => setNewNotes(e.target.value)} className="border-[var(--border-strong)] text-white bg-[var(--panel-hover)]" />
                 </div>
               </>
             )}

@@ -18,8 +18,20 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { pullDataFromCloud, pushDataToCloud } from "@/lib/sync";
 import { storage } from "@/lib/storage";
+import { useUserPrefs } from "@/hooks/use-storage";
 
 const queryClient = new QueryClient();
+
+/** Apply theme class to <html> reactively */
+function ThemeApplier() {
+  const prefs = useUserPrefs();
+  useEffect(() => {
+    const theme = prefs?.theme || "noir";
+    document.documentElement.classList.remove("theme-noir", "theme-floral");
+    document.documentElement.classList.add(`theme-${theme}`);
+  }, [prefs?.theme]);
+  return null;
+}
 
 /**
  * USER FLOW:
@@ -95,10 +107,10 @@ function AppInner() {
   // Still checking auth or syncing data
   if (!ready) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: "#0d0d0d" }}>
+      <div className="min-h-screen flex items-center justify-center" style={{ background: "var(--surface)" }}>
         <div className="flex flex-col items-center gap-3">
           <div className="w-6 h-6 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
-          <p className="text-white/40 text-sm">Loading...</p>
+          <p style={{ color: "var(--text-dim)" }} className="text-sm">Loading...</p>
         </div>
       </div>
     );
@@ -116,19 +128,22 @@ function AppInner() {
 
   // Logged in and data loaded → Dashboard
   return (
-    <Layout>
-      <Switch>
-        <Route path="/" component={Dashboard} />
-        <Route path="/goals" component={DailyGoals} />
-        <Route path="/schedule" component={WeeklySchedule} />
-        <Route path="/health" component={HealthTracker} />
-        <Route path="/weight" component={WeightTracker} />
-        <Route path="/trackers" component={Trackers} />
-        <Route path="/trackers/:id" component={TrackerDetail} />
-        <Route path="/settings" component={Settings} />
-        <Route component={NotFound} />
-      </Switch>
-    </Layout>
+    <>
+      <ThemeApplier />
+      <Layout>
+        <Switch>
+          <Route path="/" component={Dashboard} />
+          <Route path="/goals" component={DailyGoals} />
+          <Route path="/schedule" component={WeeklySchedule} />
+          <Route path="/health" component={HealthTracker} />
+          <Route path="/weight" component={WeightTracker} />
+          <Route path="/trackers" component={Trackers} />
+          <Route path="/trackers/:id" component={TrackerDetail} />
+          <Route path="/settings" component={Settings} />
+          <Route component={NotFound} />
+        </Switch>
+      </Layout>
+    </>
   );
 }
 
@@ -140,12 +155,11 @@ function App() {
           <AppInner />
         </WouterRouter>
         <Toaster
-          theme="dark"
           toastOptions={{
             style: {
-              background: "#111",
-              border: "1px solid #1d1d1d",
-              color: "#fff",
+              background: "var(--panel)",
+              border: "1px solid var(--border-s)",
+              color: "var(--text-heading)",
             },
           }}
         />

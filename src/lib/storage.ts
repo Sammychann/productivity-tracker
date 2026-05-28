@@ -34,6 +34,7 @@ export const DailyLogSchema = z.object({
   sleep: z.number(),
   sleepQuality: z.enum(["poor", "okay", "good", "great"]).optional(),
   completedGoals: z.array(z.string()),
+  notes: z.string().optional(),
 });
 export type DailyLog = z.infer<typeof DailyLogSchema>;
 
@@ -56,6 +57,7 @@ export const UserPrefsSchema = z.object({
   weighInDay: z.string(),
   height: z.number().optional(),
   weightUnit: z.enum(["kg", "lbs"]),
+  theme: z.enum(["noir", "floral"]).default("noir"),
 });
 export type UserPrefs = z.infer<typeof UserPrefsSchema>;
 
@@ -176,7 +178,7 @@ export const DEFAULT_TARGETS: HealthTargets = {
   sleep: 8,
 };
 
-const EMPTY_LOG: DailyLog = { water: 0, calories: 0, protein: 0, sleep: 0, completedGoals: [] };
+const EMPTY_LOG: DailyLog = { water: 0, calories: 0, protein: 0, sleep: 0, completedGoals: [], notes: "" };
 
 const get = <T,>(key: string, def: T): T => {
   try {

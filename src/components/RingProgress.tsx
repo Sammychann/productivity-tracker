@@ -32,7 +32,7 @@ export function RingProgress({
           cy={size / 2}
           r={radius}
           fill="none"
-          stroke="#1d1d1d"
+          stroke="var(--border-s)"
           strokeWidth={strokeWidth}
         />
         <motion.circle

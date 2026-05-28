@@ -21,8 +21,8 @@ const WEEKDAYS = [
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
-      className="rounded-2xl p-6 space-y-5" style={{ background: "#111", border: "1px solid #1d1d1d" }}>
-      <p className="text-[11px] font-semibold uppercase tracking-widest" style={{ color: "#444" }}>{title}</p>
+      className="rounded-2xl p-6 space-y-5" style={{ background: "var(--panel)", border: "1px solid var(--border-s)" }}>
+      <p className="text-[11px] font-semibold uppercase tracking-widest" style={{ color: "var(--text-muted)" }}>{title}</p>
       {children}
     </motion.div>
   );
@@ -37,7 +37,7 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
   );
 }
 
-const inputCls = "bg-[#161616] border-[#222] text-white placeholder:text-[#444] focus:border-primary/50";
+const inputCls = "bg-[var(--panel-hover)] border-[var(--border-strong)] text-white placeholder:text-[var(--text-muted)] focus:border-primary/50";
 
 export default function Settings() {
   const targets = useHealthTargets();
@@ -48,6 +48,7 @@ export default function Settings() {
   const [weightUnit, setWeightUnit] = useState<"kg" | "lbs">(userPrefs?.weightUnit ?? "kg");
   const [height, setHeight] = useState(String(userPrefs?.height ?? ""));
   const [weighInDay, setWeighInDay] = useState(userPrefs?.weighInDay ?? "mon");
+  const [theme, setTheme] = useState<"noir" | "floral">(userPrefs?.theme ?? "noir");
 
   const [calories, setCalories] = useState(String(targets?.calories ?? 2500));
   const [protein, setProtein] = useState(String(targets?.protein ?? 150));
@@ -55,7 +56,7 @@ export default function Settings() {
   const [sleep, setSleep] = useState(String(targets?.sleep ?? 8));
 
   const saveProfile = () => {
-    storage.setUserPrefs({ name: name || "Athlete", weighInDay, height: height ? parseFloat(height) : undefined, weightUnit });
+    storage.setUserPrefs({ name: name || "Athlete", weighInDay, height: height ? parseFloat(height) : undefined, weightUnit, theme });
     toast.success("Profile saved");
   };
 
@@ -80,8 +81,8 @@ export default function Settings() {
   return (
     <div className="space-y-8">
       <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}>
-        <h1 className="text-3xl font-bold text-white tracking-tight">Settings</h1>
-        <p className="text-sm mt-0.5" style={{ color: "#555" }}>Profile & preferences</p>
+        <h1 className="text-3xl font-bold text-[var(--text-heading)] tracking-tight">Settings</h1>
+        <p className="text-sm mt-0.5" style={{ color: "var(--text-dim)" }}>Profile & preferences</p>
       </motion.div>
 
       {/* Profile */}
@@ -94,9 +95,9 @@ export default function Settings() {
           <Field label="Weight unit">
             <Select value={weightUnit} onValueChange={v => setWeightUnit(v as "kg" | "lbs")}>
               <SelectTrigger className={inputCls}><SelectValue /></SelectTrigger>
-              <SelectContent style={{ background: "#111", borderColor: "#222" }}>
-                <SelectItem value="kg" className="text-white focus:bg-white/[0.06]">kg</SelectItem>
-                <SelectItem value="lbs" className="text-white focus:bg-white/[0.06]">lbs</SelectItem>
+              <SelectContent style={{ background: "var(--panel)", borderColor: "var(--border-strong)" }}>
+                <SelectItem value="kg" className="text-[var(--text-heading)] focus:bg-white/[0.06]">kg</SelectItem>
+                <SelectItem value="lbs" className="text-[var(--text-heading)] focus:bg-white/[0.06]">lbs</SelectItem>
               </SelectContent>
             </Select>
           </Field>
@@ -104,15 +105,26 @@ export default function Settings() {
             <Input type="number" placeholder="e.g. 175" value={height} onChange={e => setHeight(e.target.value)} className={inputCls} />
           </Field>
         </div>
-        <Field label="Weigh-in day">
-          <Select value={weighInDay} onValueChange={setWeighInDay}>
-            <SelectTrigger className={inputCls}><SelectValue /></SelectTrigger>
-            <SelectContent style={{ background: "#111", borderColor: "#222" }}>
-              {WEEKDAYS.map(d => <SelectItem key={d.value} value={d.value} className="text-white focus:bg-white/[0.06]">{d.label}</SelectItem>)}
-            </SelectContent>
-          </Select>
-        </Field>
-        <Button onClick={saveProfile} className="w-full gap-2 bg-primary hover:bg-primary/90">
+        <div className="grid grid-cols-2 gap-4">
+          <Field label="Weigh-in day">
+            <Select value={weighInDay} onValueChange={setWeighInDay}>
+              <SelectTrigger className={inputCls}><SelectValue /></SelectTrigger>
+              <SelectContent style={{ background: "var(--panel)", borderColor: "var(--border-strong)" }}>
+                {WEEKDAYS.map(d => <SelectItem key={d.value} value={d.value} className="text-[var(--text-heading)] focus:bg-white/[0.06]">{d.label}</SelectItem>)}
+              </SelectContent>
+            </Select>
+          </Field>
+          <Field label="Theme">
+            <Select value={theme} onValueChange={v => setTheme(v as "noir" | "floral")}>
+              <SelectTrigger className={inputCls}><SelectValue /></SelectTrigger>
+              <SelectContent style={{ background: "var(--panel)", borderColor: "var(--border-strong)" }}>
+                <SelectItem value="noir" className="text-[var(--text-heading)] focus:bg-white/[0.06]">Noir (Dark)</SelectItem>
+                <SelectItem value="floral" className="text-[var(--text-heading)] focus:bg-white/[0.06]">Floral (Light)</SelectItem>
+              </SelectContent>
+            </Select>
+          </Field>
+        </div>
+        <Button onClick={saveProfile} className="w-full gap-2 bg-primary text-[var(--primary-foreground)] hover:bg-primary/90">
           <Save className="w-4 h-4" /> Save Profile
         </Button>
       </Section>
@@ -138,7 +150,7 @@ export default function Settings() {
 
       {/* Account Settings */}
       <Section title="Account">
-        <Button onClick={handleLogout} variant="outline" className="w-full bg-[#161616] border-[#222] text-white hover:bg-[#222]">
+        <Button onClick={handleLogout} variant="outline" className="w-full bg-[var(--panel-hover)] border-[var(--border-strong)] text-white hover:bg-[var(--border-strong)]">
           <LogOut className="w-4 h-4 mr-2" /> Log Out
         </Button>
       </Section>
@@ -146,7 +158,7 @@ export default function Settings() {
       {/* Danger */}
       <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
         className="rounded-2xl p-6" style={{ border: "1px solid #2a1515" }}>
-        <p className="text-[11px] font-semibold uppercase tracking-widest mb-4" style={{ color: "#555" }}>Danger Zone</p>
+        <p className="text-[11px] font-semibold uppercase tracking-widest mb-4" style={{ color: "var(--text-dim)" }}>Danger Zone</p>
         <Button onClick={() => setShowReset(true)} variant="outline"
           className="w-full border-red-900/50 text-red-500 hover:bg-red-950/30 hover:border-red-800">
           <Trash2 className="w-4 h-4 mr-2" /> Reset All Data
@@ -154,15 +166,15 @@ export default function Settings() {
       </motion.div>
 
       <AlertDialog open={showReset} onOpenChange={setShowReset}>
-        <AlertDialogContent style={{ background: "#111", borderColor: "#222" }}>
+        <AlertDialogContent style={{ background: "var(--panel)", borderColor: "var(--border-strong)" }}>
           <AlertDialogHeader>
             <AlertDialogTitle className="text-white">Reset all data?</AlertDialogTitle>
-            <AlertDialogDescription style={{ color: "#666" }}>
+            <AlertDialogDescription style={{ color: "var(--text-tertiary)" }}>
               This permanently deletes all goals, logs, and preferences.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel style={{ background: "#161616", borderColor: "#222", color: "#aaa" }}>Cancel</AlertDialogCancel>
+            <AlertDialogCancel style={{ background: "var(--panel-hover)", borderColor: "var(--border-strong)", color: "#aaa" }}>Cancel</AlertDialogCancel>
             <AlertDialogAction onClick={reset} className="bg-destructive text-white hover:bg-destructive/90">Reset</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

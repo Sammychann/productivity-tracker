@@ -100,19 +100,19 @@ export function ActivityHeatmap() {
   const getLevelColor = (level: number) => {
     switch (level) {
       case -1: return "transparent"; // Future or out-of-year days
-      case 0: return "#161616";
+      case 0: return "var(--panel-hover)";
       case 1: return "#10b98140";
       case 2: return "#10b98180";
       case 3: return "#10b981cc";
       case 4: return "#10b981";
-      default: return "#161616";
+      default: return "var(--panel-hover)";
     }
   };
 
   return (
-    <div className="rounded-2xl p-4" style={{ background: "#111", border: "1px solid #1d1d1d" }}>
+    <div className="rounded-2xl p-4" style={{ background: "var(--panel)", border: "1px solid var(--border-s)" }}>
       <div className="flex items-center justify-between mb-4">
-        <p className="text-[11px] font-semibold uppercase tracking-widest" style={{ color: "#444" }}>Consistency</p>
+        <p className="text-[11px] font-semibold uppercase tracking-widest" style={{ color: "var(--text-muted)" }}>Consistency</p>
         
         {/* Sleek Native Select for Year */}
         <div className="relative">
@@ -120,21 +120,21 @@ export function ActivityHeatmap() {
             value={selectedYear} 
             onChange={e => setSelectedYear(parseInt(e.target.value))}
             className="appearance-none bg-transparent text-[11px] font-semibold tracking-wider outline-none cursor-pointer pr-4"
-            style={{ color: "#888", WebkitAppearance: "none" }}
+            style={{ color: "var(--text-secondary)", WebkitAppearance: "none" }}
           >
             {availableYears.map(yr => (
-              <option key={yr} value={yr} style={{ background: "#111", color: "#fff" }}>
+              <option key={yr} value={yr} style={{ background: "var(--panel)", color: "var(--text-heading)" }}>
                 {yr}
               </option>
             ))}
           </select>
-          <ChevronDown className="w-3 h-3 absolute right-0 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: "#555" }} />
+          <ChevronDown className="w-3 h-3 absolute right-0 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: "var(--text-dim)" }} />
         </div>
       </div>
 
       <div className="flex">
         {/* Day labels */}
-        <div className="flex flex-col justify-between pr-3 py-6 text-[9px] font-medium shrink-0" style={{ color: "#555" }}>
+        <div className="flex flex-col justify-between pr-3 py-6 text-[9px] font-medium shrink-0" style={{ color: "var(--text-dim)" }}>
           <span className="h-3 leading-3">Sun</span>
           <span className="h-3 leading-3">Tue</span>
           <span className="h-3 leading-3">Thu</span>
@@ -154,7 +154,7 @@ export function ActivityHeatmap() {
             
             {/* Month labels */}
             {monthLabels.map((lbl, i) => (
-              <span key={i} className="absolute top-0 text-[10px] font-medium" style={{ color: "#555", left: `${lbl.colIndex * 16}px` }}>
+              <span key={i} className="absolute top-0 text-[10px] font-medium" style={{ color: "var(--text-dim)", left: `${lbl.colIndex * 16}px` }}>
                 {lbl.text}
               </span>
             ))}
@@ -170,12 +170,12 @@ export function ActivityHeatmap() {
                             className="w-3 h-3 rounded-[3px] transition-colors"
                             style={{ 
                               background: getLevelColor(cell.level),
-                              border: cell.level === 0 ? "1px solid #222" : "none"
+                              border: cell.level === 0 ? "1px solid var(--border-strong)" : "none"
                             }}
                           />
                         </TooltipTrigger>
                         {cell.level !== -1 && (
-                          <TooltipContent side="top" className="text-xs" style={{ background: "#161616", border: "1px solid #222", color: "#ccc" }}>
+                          <TooltipContent side="top" className="text-xs" style={{ background: "var(--panel-hover)", border: "1px solid var(--border-strong)", color: "#ccc" }}>
                             {format(new Date(cell.dateStr + "T12:00:00"), "MMM d, yyyy")}
                           </TooltipContent>
                         )}

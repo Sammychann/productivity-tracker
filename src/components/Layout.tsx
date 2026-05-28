@@ -19,13 +19,13 @@ export function Layout({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();
 
   return (
-    <div className="flex min-h-screen" style={{ background: "#0d0d0d" }}>
+    <div className="flex min-h-screen" style={{ background: "var(--surface)" }}>
       {/* Desktop Sidebar */}
       <aside className="hidden md:flex flex-col w-14 xl:w-52 shrink-0 fixed left-0 top-0 h-full z-40"
-        style={{ background: "#0a0a0a", borderRight: "1px solid #1a1a1a" }}>
+        style={{ background: "#0a0a0a", borderRight: "1px solid var(--border-light)" }}>
         {/* Logo */}
         <div className="flex items-center gap-3 px-3 xl:px-5 h-14"
-          style={{ borderBottom: "1px solid #1a1a1a" }}>
+          style={{ borderBottom: "1px solid var(--border-light)" }}>
           <div className="w-7 h-7 rounded-lg bg-primary flex items-center justify-center shrink-0">
             <LayoutDashboard className="w-3.5 h-3.5 text-white" />
           </div>
@@ -40,9 +40,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
               <Link key={href} href={href}>
                 <div className={cn(
                   "flex items-center gap-3 px-3 py-2 rounded-lg transition-colors cursor-pointer",
-                  active ? "text-white" : "text-[#555] hover:text-[#888] hover:bg-white/[0.03]"
+                  active ? "text-white" : "text-[var(--text-dim)] hover:text-[var(--text-secondary)] hover:bg-white/[0.03]"
                 )}
-                  style={active ? { background: "#1a1a1a" } : {}}>
+                  style={active ? { background: "var(--border-light)" } : {}}>
                   <Icon className="w-4 h-4 shrink-0" />
                   <span className="hidden xl:block text-sm font-medium">{label}</span>
                   {active && <div className="hidden xl:block ml-auto w-1 h-1 rounded-full bg-primary" />}
@@ -60,14 +60,14 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
       {/* Mobile Bottom Nav */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 flex items-center justify-around px-1 py-2"
-        style={{ background: "#0a0a0a", borderTop: "1px solid #1a1a1a" }}>
+        style={{ background: "#0a0a0a", borderTop: "1px solid var(--border-light)" }}>
         {mobileNav.map(({ href, label, icon: Icon }) => {
           const active = location === href;
           return (
             <Link key={href} href={href}>
               <div className={cn(
                 "flex flex-col items-center gap-1 px-2 py-1.5 rounded-xl transition-colors",
-                active ? "text-white" : "text-[#555]"
+                active ? "text-white" : "text-[var(--text-dim)]"
               )}>
                 <Icon className="w-4.5 h-4.5" />
                 <span className="text-[9px] font-medium">{label}</span>

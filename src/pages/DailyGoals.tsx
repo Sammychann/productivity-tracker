@@ -67,7 +67,7 @@ function GoalHeatmap({ goalId, allLogs, color }: { goalId: string; allLogs: LogM
         <div key={w} className="flex flex-col gap-0.5">
           {col.map((cell, d) => (
             <div key={d} title={cell.date} className="w-2.5 h-2.5 rounded-sm"
-              style={{ backgroundColor: !cell.date ? "transparent" : cell.done ? color : "#1a1a1a" }} />
+              style={{ backgroundColor: !cell.date ? "transparent" : cell.done ? color : "var(--border-light)" }} />
           ))}
         </div>
       ))}
@@ -75,8 +75,8 @@ function GoalHeatmap({ goalId, allLogs, color }: { goalId: string; allLogs: LogM
   );
 }
 
-const inputCls = "border-[#222] text-white placeholder:text-[#333]";
-const inputStyle = { background: "#161616" };
+const inputCls = "border-[var(--border-strong)] text-white placeholder:text-[var(--text-faint)]";
+const inputStyle = { background: "var(--panel-hover)" };
 
 export default function DailyGoals() {
   const goals = useGoals();
@@ -128,7 +128,7 @@ export default function DailyGoals() {
         className="flex items-start justify-between">
         <div>
           <h1 className="text-3xl font-bold text-white tracking-tight">Goals</h1>
-          <p className="text-sm mt-0.5" style={{ color: "#555" }}>
+          <p className="text-sm mt-0.5" style={{ color: "var(--text-dim)" }}>
             {completedCount}/{goals.length} done today
           </p>
         </div>
@@ -142,10 +142,10 @@ export default function DailyGoals() {
       {goals.length > 0 && (
         <div className="space-y-2">
           <div className="flex justify-between items-center">
-            <p className="text-[11px] font-semibold uppercase tracking-widest" style={{ color: "#444" }}>Today</p>
+            <p className="text-[11px] font-semibold uppercase tracking-widest" style={{ color: "var(--text-muted)" }}>Today</p>
             <p className="text-[11px] font-bold text-white">{Math.round((completedCount / goals.length) * 100)}%</p>
           </div>
-          <div className="h-1 rounded-full overflow-hidden" style={{ background: "#1d1d1d" }}>
+          <div className="h-1 rounded-full overflow-hidden" style={{ background: "var(--border-s)" }}>
             <motion.div className="h-full rounded-full bg-primary"
               initial={{ width: 0 }} animate={{ width: `${(completedCount / goals.length) * 100}%` }}
               transition={{ duration: 0.7, ease: "easeOut" }} />
@@ -155,13 +155,13 @@ export default function DailyGoals() {
 
       {/* Goal list */}
       {goals.length === 0 ? (
-        <div className="rounded-2xl p-12 text-center" style={{ background: "#111", border: "1px solid #1d1d1d" }}>
-          <Target className="w-10 h-10 mx-auto mb-3" style={{ color: "#2a2a2a" }} />
-          <p className="text-sm font-medium" style={{ color: "#444" }}>No habits yet</p>
-          <p className="text-xs mt-1" style={{ color: "#333" }}>Add your first daily habit</p>
+        <div className="rounded-2xl p-12 text-center" style={{ background: "var(--panel)", border: "1px solid var(--border-s)" }}>
+          <Target className="w-10 h-10 mx-auto mb-3" style={{ color: "var(--text-ghost)" }} />
+          <p className="text-sm font-medium" style={{ color: "var(--text-muted)" }}>No habits yet</p>
+          <p className="text-xs mt-1" style={{ color: "var(--text-faint)" }}>Add your first daily habit</p>
         </div>
       ) : (
-        <div className="rounded-2xl overflow-hidden" style={{ border: "1px solid #1d1d1d" }}>
+        <div className="rounded-2xl overflow-hidden" style={{ border: "1px solid var(--border-s)" }}>
           <AnimatePresence>
             {goals.map((goal, i) => {
               const done = (todayLog.completedGoals || []).includes(goal.id);
@@ -171,14 +171,14 @@ export default function DailyGoals() {
               return (
                 <motion.div key={goal.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
                   transition={{ delay: i * 0.04 }}
-                  style={{ background: done ? "#131313" : "#111", borderTop: i > 0 ? "1px solid #1a1a1a" : "none" }}>
+                  style={{ background: done ? "var(--panel-active)" : "var(--panel)", borderTop: i > 0 ? "1px solid var(--border-light)" : "none" }}>
                   <div className="flex items-center gap-3 px-4 py-3.5">
                     {/* Checkbox */}
                     <button onClick={() => toggleGoal(goal.id)}
                       className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition-all"
                       style={{
-                        background: done ? goal.color + "20" : "#161616",
-                        border: `2px solid ${done ? goal.color : "#222"}`,
+                        background: done ? goal.color + "20" : "var(--panel-hover)",
+                        border: `2px solid ${done ? goal.color : "var(--border-strong)"}`,
                       }}>
                       {done
                         ? <Check className="w-4 h-4" style={{ color: goal.color }} />
@@ -189,18 +189,18 @@ export default function DailyGoals() {
                     {/* Text */}
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium leading-snug"
-                        style={{ color: done ? "#444" : "#ccc", textDecoration: done ? "line-through" : "none" }}>
+                        style={{ color: done ? "var(--text-muted)" : "#ccc", textDecoration: done ? "line-through" : "none" }}>
                         {goal.name}
                       </p>
                       {goal.target > 0 && (
-                        <p className="text-[11px] mt-0.5" style={{ color: "#333" }}>{goal.target} {goal.unit}</p>
+                        <p className="text-[11px] mt-0.5" style={{ color: "var(--text-faint)" }}>{goal.target} {goal.unit}</p>
                       )}
                     </div>
 
                     {/* Streak */}
                     {streak > 0 && (
                       <span className="text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0"
-                        style={{ background: "#1a1a1a", color: "#f97316" }}>
+                        style={{ background: "var(--border-light)", color: "#f97316" }}>
                         {streak}d
                       </span>
                     )}
@@ -209,17 +209,17 @@ export default function DailyGoals() {
                     <div className="flex items-center gap-0.5">
                       <button onClick={() => setExpandedHeatmap(showHeat ? null : goal.id)}
                         className="w-8 h-8 rounded-lg flex items-center justify-center transition-colors"
-                        style={{ color: showHeat ? "#6366f1" : "#333" }}>
+                        style={{ color: showHeat ? "#6366f1" : "var(--text-faint)" }}>
                         <CalendarDays className="w-3.5 h-3.5" />
                       </button>
                       <button onClick={() => openEdit(goal)}
                         className="w-8 h-8 rounded-lg flex items-center justify-center transition-colors hover:text-white"
-                        style={{ color: "#333" }}>
+                        style={{ color: "var(--text-faint)" }}>
                         <Edit2 className="w-3.5 h-3.5" />
                       </button>
                       <button onClick={() => setDeleteId(goal.id)}
                         className="w-8 h-8 rounded-lg flex items-center justify-center transition-colors hover:text-red-500"
-                        style={{ color: "#333" }}>
+                        style={{ color: "var(--text-faint)" }}>
                         <Trash2 className="w-3.5 h-3.5" />
                       </button>
                     </div>
@@ -230,9 +230,9 @@ export default function DailyGoals() {
                     {showHeat && (
                       <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }}
                         exit={{ opacity: 0, height: 0 }} transition={{ duration: 0.2 }} className="overflow-hidden">
-                        <div className="px-4 pb-4" style={{ borderTop: "1px solid #1a1a1a" }}>
+                        <div className="px-4 pb-4" style={{ borderTop: "1px solid var(--border-light)" }}>
                           <div className="flex items-center justify-between mt-3 mb-1">
-                            <p className="text-[10px] font-semibold uppercase tracking-widest" style={{ color: "#333" }}>
+                            <p className="text-[10px] font-semibold uppercase tracking-widest" style={{ color: "var(--text-faint)" }}>
                               12 weeks
                             </p>
                             <p className="text-[10px]" style={{ color: goal.color }}>
@@ -256,44 +256,44 @@ export default function DailyGoals() {
 
       {/* Add/Edit Dialog */}
       <Dialog open={showAdd} onOpenChange={o => { if (!o) { setShowAdd(false); setEditGoal(null); resetForm(); } }}>
-        <DialogContent className="max-w-sm" style={{ background: "#111", borderColor: "#1d1d1d" }}>
+        <DialogContent className="max-w-sm" style={{ background: "var(--panel)", borderColor: "var(--border-s)" }}>
           <DialogHeader>
             <DialogTitle className="text-white">{editGoal ? "Edit Goal" : "New Goal"}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 pt-1">
             <div className="space-y-1.5">
-              <Label className="text-sm" style={{ color: "#888" }}>Name</Label>
+              <Label className="text-sm" style={{ color: "var(--text-secondary)" }}>Name</Label>
               <Input placeholder="e.g. Meditate" value={newName} onChange={e => setNewName(e.target.value)}
                 onKeyDown={e => e.key === "Enter" && handleSave()}
                 className={inputCls} style={inputStyle} autoFocus />
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <Label className="text-sm" style={{ color: "#888" }}>Target</Label>
+                <Label className="text-sm" style={{ color: "var(--text-secondary)" }}>Target</Label>
                 <Input type="number" placeholder="10" value={newTarget} onChange={e => setNewTarget(e.target.value)}
                   className={inputCls} style={inputStyle} />
               </div>
               <div className="space-y-1.5">
-                <Label className="text-sm" style={{ color: "#888" }}>Unit</Label>
+                <Label className="text-sm" style={{ color: "var(--text-secondary)" }}>Unit</Label>
                 <Input placeholder="mins, pages…" value={newUnit} onChange={e => setNewUnit(e.target.value)}
                   className={inputCls} style={inputStyle} />
               </div>
             </div>
             <div className="space-y-1.5">
-              <Label className="text-sm" style={{ color: "#888" }}>Icon</Label>
+              <Label className="text-sm" style={{ color: "var(--text-secondary)" }}>Icon</Label>
               <div className="flex gap-2">
                 {ICON_OPTIONS.map(opt => (
                   <button key={opt.name} onClick={() => setNewIcon(opt.name)}
                     className="w-9 h-9 rounded-lg flex items-center justify-center transition-all text-white"
                     style={{
-                      background: newIcon === opt.name ? newColor + "20" : "#161616",
-                      border: `1px solid ${newIcon === opt.name ? newColor + "50" : "#222"}`,
+                      background: newIcon === opt.name ? newColor + "20" : "var(--panel-hover)",
+                      border: `1px solid ${newIcon === opt.name ? newColor + "50" : "var(--border-strong)"}`,
                     }}>{opt.icon}</button>
                 ))}
               </div>
             </div>
             <div className="space-y-1.5">
-              <Label className="text-sm" style={{ color: "#888" }}>Color</Label>
+              <Label className="text-sm" style={{ color: "var(--text-secondary)" }}>Color</Label>
               <div className="flex gap-2 flex-wrap">
                 {COLOR_OPTIONS.map(c => (
                   <button key={c} onClick={() => setNewColor(c)}
@@ -311,13 +311,13 @@ export default function DailyGoals() {
 
       {/* Delete confirm */}
       <AlertDialog open={!!deleteId} onOpenChange={o => !o && setDeleteId(null)}>
-        <AlertDialogContent style={{ background: "#111", borderColor: "#1d1d1d" }}>
+        <AlertDialogContent style={{ background: "var(--panel)", borderColor: "var(--border-s)" }}>
           <AlertDialogHeader>
             <AlertDialogTitle className="text-white">Delete goal?</AlertDialogTitle>
-            <AlertDialogDescription style={{ color: "#555" }}>This removes the goal and its streak history.</AlertDialogDescription>
+            <AlertDialogDescription style={{ color: "var(--text-dim)" }}>This removes the goal and its streak history.</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel style={{ background: "#161616", borderColor: "#222", color: "#888" }}>Cancel</AlertDialogCancel>
+            <AlertDialogCancel style={{ background: "var(--panel-hover)", borderColor: "var(--border-strong)", color: "var(--text-secondary)" }}>Cancel</AlertDialogCancel>
             <AlertDialogAction onClick={() => { if (deleteId) { storage.setGoals(goals.filter(g => g.id !== deleteId)); toast.success("Deleted"); setDeleteId(null); } }}
               className="bg-destructive text-white hover:bg-destructive/90">Delete</AlertDialogAction>
           </AlertDialogFooter>

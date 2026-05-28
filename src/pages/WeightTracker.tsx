@@ -64,7 +64,7 @@ export default function WeightTracker() {
         className="flex items-start justify-between">
         <div>
           <h1 className="text-3xl font-bold text-white tracking-tight">Weight</h1>
-          <p className="text-sm mt-0.5" style={{ color: "#555" }}>Track your progress</p>
+          <p className="text-sm mt-0.5" style={{ color: "var(--text-dim)" }}>Track your progress</p>
         </div>
         <Button onClick={() => setShowAdd(true)} size="sm" className="gap-2 bg-primary hover:bg-primary/90">
           <Plus className="w-4 h-4" /> Log
@@ -74,33 +74,33 @@ export default function WeightTracker() {
       {/* Key stats */}
       <div className="grid grid-cols-3 gap-3">
         {[
-          { label: "Current", value: current ? `${current}` : "—", sub: unit, color: "#fff" },
-          { label: "Change", value: change !== null ? `${change > 0 ? "+" : ""}${change.toFixed(1)}` : "—", sub: unit, color: change === null ? "#444" : change < 0 ? "#22c55e" : "#ef4444" },
+          { label: "Current", value: current ? `${current}` : "—", sub: unit, color: "var(--text-heading)" },
+          { label: "Change", value: change !== null ? `${change > 0 ? "+" : ""}${change.toFixed(1)}` : "—", sub: unit, color: change === null ? "var(--text-muted)" : change < 0 ? "#22c55e" : "#ef4444" },
           { label: "Goal", value: goalNum ? `${goalNum}` : "—", sub: unit, color: "#6366f1" },
         ].map((s, i) => (
           <motion.div key={s.label} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.05 }}
-            className="p-4 rounded-2xl" style={{ background: "#111", border: "1px solid #1d1d1d" }}>
-            <p className="text-[10px] font-semibold uppercase tracking-widest mb-2" style={{ color: "#444" }}>{s.label}</p>
+            className="p-4 rounded-2xl" style={{ background: "var(--panel)", border: "1px solid var(--border-s)" }}>
+            <p className="text-[10px] font-semibold uppercase tracking-widest mb-2" style={{ color: "var(--text-muted)" }}>{s.label}</p>
             <p className="text-2xl font-bold leading-none" style={{ color: s.color }}>{s.value}</p>
-            {s.value !== "—" && <p className="text-[10px] mt-1" style={{ color: "#444" }}>{s.sub}</p>}
+            {s.value !== "—" && <p className="text-[10px] mt-1" style={{ color: "var(--text-muted)" }}>{s.sub}</p>}
           </motion.div>
         ))}
       </div>
 
       {/* Goal weight input */}
-      <div className="flex items-center gap-3 p-4 rounded-2xl" style={{ background: "#111", border: "1px solid #1d1d1d" }}>
-        <p className="text-sm font-medium shrink-0" style={{ color: "#555" }}>Goal ({unit})</p>
+      <div className="flex items-center gap-3 p-4 rounded-2xl" style={{ background: "var(--panel)", border: "1px solid var(--border-s)" }}>
+        <p className="text-sm font-medium shrink-0" style={{ color: "var(--text-dim)" }}>Goal ({unit})</p>
         <Input type="number" placeholder="e.g. 75" value={goalWeight}
           onChange={e => { setGoalWeight(e.target.value); localStorage.setItem("goal_weight", e.target.value); }}
-          className="h-9 border-[#222] text-white text-sm" style={{ background: "#161616" }} />
+          className="h-9 border-[var(--border-strong)] text-white text-sm" style={{ background: "var(--panel-hover)" }} />
       </div>
 
       {/* Chart */}
       <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
-        className="p-5 rounded-2xl" style={{ background: "#111", border: "1px solid #1d1d1d" }}>
+        className="p-5 rounded-2xl" style={{ background: "var(--panel)", border: "1px solid var(--border-s)" }}>
         <div className="flex items-center justify-between mb-5">
-          <p className="text-[11px] font-semibold uppercase tracking-widest" style={{ color: "#444" }}>12-Week Trend</p>
+          <p className="text-[11px] font-semibold uppercase tracking-widest" style={{ color: "var(--text-muted)" }}>12-Week Trend</p>
           {current && start && change !== null && (
             <span className="flex items-center gap-1 text-xs font-semibold"
               style={{ color: change < 0 ? "#22c55e" : "#ef4444" }}>
@@ -112,10 +112,10 @@ export default function WeightTracker() {
         {chartData.length > 1 ? (
           <ResponsiveContainer width="100%" height={180}>
             <LineChart data={chartData} margin={{ top: 4, right: 4, bottom: 0, left: -20 }}>
-              <XAxis dataKey="date" tick={{ fontSize: 10, fill: "#333" }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fontSize: 10, fill: "#333" }} axisLine={false} tickLine={false} domain={["auto", "auto"]} width={40} />
-              <Tooltip contentStyle={{ background: "#161616", border: "1px solid #222", borderRadius: 8, fontSize: 11 }}
-                labelStyle={{ color: "#666" }} itemStyle={{ color: "#6366f1" }}
+              <XAxis dataKey="date" tick={{ fontSize: 10, fill: "var(--text-faint)" }} axisLine={false} tickLine={false} />
+              <YAxis tick={{ fontSize: 10, fill: "var(--text-faint)" }} axisLine={false} tickLine={false} domain={["auto", "auto"]} width={40} />
+              <Tooltip contentStyle={{ background: "var(--panel-hover)", border: "1px solid var(--border-strong)", borderRadius: 8, fontSize: 11 }}
+                labelStyle={{ color: "var(--text-tertiary)" }} itemStyle={{ color: "#6366f1" }}
                 formatter={v => [`${v} ${unit}`, "Weight"]} />
               {goalNum && (
                 <ReferenceLine y={goalNum} stroke="#6366f1" strokeDasharray="4 4" strokeOpacity={0.5}
@@ -127,7 +127,7 @@ export default function WeightTracker() {
             </LineChart>
           </ResponsiveContainer>
         ) : (
-          <div className="h-44 flex flex-col items-center justify-center" style={{ color: "#2a2a2a" }}>
+          <div className="h-44 flex flex-col items-center justify-center" style={{ color: "var(--text-ghost)" }}>
             <p className="text-sm">Log weigh-ins to see your trend</p>
           </div>
         )}
@@ -136,9 +136,9 @@ export default function WeightTracker() {
       {/* BMI */}
       {bmiVal && bmiInfo && (
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}
-          className="flex items-center justify-between p-5 rounded-2xl" style={{ background: "#111", border: "1px solid #1d1d1d" }}>
+          className="flex items-center justify-between p-5 rounded-2xl" style={{ background: "var(--panel)", border: "1px solid var(--border-s)" }}>
           <div>
-            <p className="text-[11px] font-semibold uppercase tracking-widest mb-1" style={{ color: "#444" }}>BMI</p>
+            <p className="text-[11px] font-semibold uppercase tracking-widest mb-1" style={{ color: "var(--text-muted)" }}>BMI</p>
             <p className="text-3xl font-bold text-white">{bmiVal.toFixed(1)}</p>
           </div>
           <span className="text-sm font-semibold px-4 py-2 rounded-xl" style={{ background: bmiInfo.color + "15", color: bmiInfo.color }}>
@@ -150,19 +150,19 @@ export default function WeightTracker() {
       {/* Log history */}
       {sorted.length > 0 && (
         <div>
-          <p className="text-[11px] font-semibold uppercase tracking-widest mb-3" style={{ color: "#444" }}>History</p>
-          <div className="rounded-2xl overflow-hidden" style={{ border: "1px solid #1d1d1d" }}>
+          <p className="text-[11px] font-semibold uppercase tracking-widest mb-3" style={{ color: "var(--text-muted)" }}>History</p>
+          <div className="rounded-2xl overflow-hidden" style={{ border: "1px solid var(--border-s)" }}>
             {[...sorted].reverse().slice(0, 8).map((log, i) => (
               <motion.div key={log.date} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.03 }}
                 className="flex items-center gap-4 px-4 py-3 transition-colors hover:bg-white/[0.02]"
-                style={{ background: "#111", borderTop: i > 0 ? "1px solid #1a1a1a" : "none" }}>
+                style={{ background: "var(--panel)", borderTop: i > 0 ? "1px solid var(--border-light)" : "none" }}>
                 <div className="flex-1">
-                  <p className="text-sm font-semibold text-white">{log.weight} <span style={{ color: "#444" }}>{unit}</span></p>
-                  <p className="text-[11px] mt-0.5" style={{ color: "#444" }}>{format(parseISO(log.date), "EEEE, MMM d")}</p>
+                  <p className="text-sm font-semibold text-white">{log.weight} <span style={{ color: "var(--text-muted)" }}>{unit}</span></p>
+                  <p className="text-[11px] mt-0.5" style={{ color: "var(--text-muted)" }}>{format(parseISO(log.date), "EEEE, MMM d")}</p>
                 </div>
                 <button onClick={() => { storage.setWeightLogs(storage.getWeightLogs().filter(l => l.date !== log.date)); toast.success("Deleted"); }}
                   className="w-8 h-8 rounded-lg flex items-center justify-center transition-colors hover:bg-red-950/40"
-                  style={{ color: "#333" }}>
+                  style={{ color: "var(--text-faint)" }}>
                   <Trash2 className="w-3.5 h-3.5" />
                 </button>
               </motion.div>
@@ -173,7 +173,7 @@ export default function WeightTracker() {
 
       {/* Add Dialog */}
       <Dialog open={showAdd} onOpenChange={o => !o && setShowAdd(false)}>
-        <DialogContent style={{ background: "#111", borderColor: "#1d1d1d" }} className="max-w-xs">
+        <DialogContent style={{ background: "var(--panel)", borderColor: "var(--border-s)" }} className="max-w-xs">
           <DialogHeader>
             <DialogTitle className="text-white">Log Weight</DialogTitle>
           </DialogHeader>
@@ -181,8 +181,8 @@ export default function WeightTracker() {
             <Input type="number" step="0.1" placeholder={`Weight in ${unit}`} value={newWeight}
               onChange={e => setNewWeight(e.target.value)}
               onKeyDown={e => e.key === "Enter" && handleAdd()}
-              className="text-center text-2xl font-bold border-[#222] text-white h-14"
-              style={{ background: "#161616" }} autoFocus />
+              className="text-center text-2xl font-bold border-[var(--border-strong)] text-white h-14"
+              style={{ background: "var(--panel-hover)" }} autoFocus />
             <Button onClick={handleAdd} disabled={!newWeight} className="w-full bg-primary hover:bg-primary/90">
               Save
             </Button>

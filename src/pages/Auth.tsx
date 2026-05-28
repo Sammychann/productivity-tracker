@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-const inputCls = "bg-[#161616] border-[#222] text-white placeholder:text-[#444] focus:border-primary/50 h-11";
+const inputCls = "bg-[var(--panel-hover)] border-[var(--border-strong)] text-white placeholder:text-[var(--text-muted)] focus:border-primary/50 h-11";
 
 export default function Auth() {
   const [isLogin, setIsLogin] = useState(true);
@@ -42,18 +42,18 @@ export default function Auth() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4" style={{ background: "#0d0d0d" }}>
+    <div className="min-h-screen flex items-center justify-center p-4" style={{ background: "var(--surface)" }}>
       <motion.div 
         initial={{ opacity: 0, y: 16 }} 
         animate={{ opacity: 1, y: 0 }}
         className="w-full max-w-sm rounded-2xl p-8 space-y-8" 
-        style={{ background: "#111", border: "1px solid #1d1d1d" }}
+        style={{ background: "var(--panel)", border: "1px solid var(--border-s)" }}
       >
         <div className="text-center space-y-2">
           <h1 className="text-2xl font-bold text-white tracking-tight">
             {isLogin ? "Welcome back" : "Create account"}
           </h1>
-          <p className="text-sm" style={{ color: "#666" }}>
+          <p className="text-sm" style={{ color: "var(--text-tertiary)" }}>
             {isLogin ? "Enter your details to access your goals" : "Start tracking your productivity today"}
           </p>
         </div>
@@ -94,7 +94,7 @@ export default function Auth() {
             type="button"
             onClick={() => setIsLogin(!isLogin)} 
             className="text-sm hover:underline" 
-            style={{ color: "#666" }}
+            style={{ color: "var(--text-tertiary)" }}
           >
             {isLogin ? "Don't have an account? Sign up" : "Already have an account? Log in"}
           </button>
