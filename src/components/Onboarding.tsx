@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { format } from "date-fns";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronRight, User, Target, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -17,6 +18,7 @@ export function Onboarding({ onComplete }: { onComplete: () => void }) {
   const [name, setName] = useState("");
   const [weightUnit, setWeightUnit] = useState<"kg" | "lbs">("kg");
   const [height, setHeight] = useState("");
+  const [weight, setWeight] = useState("");
   const [calories, setCalories] = useState("2500");
   const [protein, setProtein] = useState("150");
   const [water, setWater] = useState("8");
@@ -30,9 +32,18 @@ export function Onboarding({ onComplete }: { onComplete: () => void }) {
   ];
 
   const finish = () => {
-    storage.setUserPrefs({ name: name || "Athlete", weighInDay: "mon", height: height ? parseFloat(height) : undefined, weightUnit });
+    storage.setUserPrefs({ name: name || "Athlete", weighInDay: "mon", height: height ? parseFloat(height) : undefined, weightUnit, theme: "noir" });
     storage.setTargets({ calories: parseInt(calories) || 2500, protein: parseInt(protein) || 150, water: parseInt(water) || 8, sleep: parseInt(sleep) || 8 });
     storage.setSchedule(schedule);
+    
+    if (weight && !isNaN(parseFloat(weight))) {
+      storage.setWeightLogs([{
+        id: crypto.randomUUID(),
+        date: format(new Date(), "yyyy-MM-dd"),
+        weight: parseFloat(weight)
+      }]);
+    }
+    
     onComplete();
   };
 
@@ -84,12 +95,21 @@ export function Onboarding({ onComplete }: { onComplete: () => void }) {
                   ))}
                 </div>
               </div>
-              <div className="space-y-2">
-                <Label className="text-sm font-medium" style={{ color: "#aaa" }}>
-                  Height (cm) <span style={{ color: "var(--text-muted)" }}>— for BMI</span>
-                </Label>
-                <Input type="number" placeholder="e.g. 175" value={height} onChange={e => setHeight(e.target.value)}
-                  className={inputCls} style={inputStyle} />
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium" style={{ color: "#aaa" }}>
+                    Height (cm)
+                  </Label>
+                  <Input type="number" placeholder="e.g. 175" value={height} onChange={e => setHeight(e.target.value)}
+                    className={inputCls} style={inputStyle} />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium" style={{ color: "#aaa" }}>
+                    Current Weight
+                  </Label>
+                  <Input type="number" placeholder={`e.g. ${weightUnit === "kg" ? "70" : "150"}`} value={weight} onChange={e => setWeight(e.target.value)}
+                    className={inputCls} style={inputStyle} />
+                </div>
               </div>
             </motion.div>
           )}
