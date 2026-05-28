@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { LayoutDashboard, Target, Calendar, Heart, Scale, Settings, Trophy, Code2 } from "lucide-react";
+import { LayoutDashboard, Target, Calendar, Heart, Scale, Settings, Trophy, Code2, Swords } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const navItems = [
@@ -27,9 +27,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <div className="flex items-center gap-3 px-3 xl:px-5 h-14"
           style={{ borderBottom: "1px solid var(--border-light)" }}>
           <div className="w-7 h-7 rounded-lg bg-primary flex items-center justify-center shrink-0">
-            <LayoutDashboard className="w-3.5 h-3.5 text-[var(--primary-foreground)]" />
+            <Swords className="w-3.5 h-3.5 text-[var(--primary-foreground)]" />
           </div>
-          <span className="hidden xl:block text-sm font-bold text-[var(--text-heading)] tracking-tight">FitOS</span>
+          <span className="hidden xl:block text-sm font-bold text-[var(--text-heading)] tracking-tight">Bankai</span>
         </div>
 
         {/* Nav */}

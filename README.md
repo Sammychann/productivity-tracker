@@ -1,4 +1,4 @@
-# 🎯 Goal & Health Tracker
+# ⚔️ Bankai
 
 A premium, state-of-the-art Goal and Health Tracker designed to help you stay on top of your daily habits, weekly gym schedules, and fitness progress. 
 
