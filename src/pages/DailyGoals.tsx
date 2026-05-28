@@ -75,7 +75,7 @@ function GoalHeatmap({ goalId, allLogs, color }: { goalId: string; allLogs: LogM
   );
 }
 
-const inputCls = "border-[var(--border-strong)] text-white placeholder:text-[var(--text-faint)]";
+const inputCls = "border-[var(--border-strong)] text-[var(--text-heading)] placeholder:text-[var(--text-faint)]";
 const inputStyle = { background: "var(--panel-hover)" };
 
 export default function DailyGoals() {
@@ -127,7 +127,7 @@ export default function DailyGoals() {
       <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}
         className="flex items-start justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-white tracking-tight">Goals</h1>
+          <h1 className="text-3xl font-bold text-[var(--text-heading)] tracking-tight">Goals</h1>
           <p className="text-sm mt-0.5" style={{ color: "var(--text-dim)" }}>
             {completedCount}/{goals.length} done today
           </p>
@@ -143,7 +143,7 @@ export default function DailyGoals() {
         <div className="space-y-2">
           <div className="flex justify-between items-center">
             <p className="text-[11px] font-semibold uppercase tracking-widest" style={{ color: "var(--text-muted)" }}>Today</p>
-            <p className="text-[11px] font-bold text-white">{Math.round((completedCount / goals.length) * 100)}%</p>
+            <p className="text-[11px] font-bold text-[var(--text-heading)]">{Math.round((completedCount / goals.length) * 100)}%</p>
           </div>
           <div className="h-1 rounded-full overflow-hidden" style={{ background: "var(--border-s)" }}>
             <motion.div className="h-full rounded-full bg-primary"
@@ -213,7 +213,7 @@ export default function DailyGoals() {
                         <CalendarDays className="w-3.5 h-3.5" />
                       </button>
                       <button onClick={() => openEdit(goal)}
-                        className="w-8 h-8 rounded-lg flex items-center justify-center transition-colors hover:text-white"
+                        className="w-8 h-8 rounded-lg flex items-center justify-center transition-colors hover:text-[var(--text-heading)]"
                         style={{ color: "var(--text-faint)" }}>
                         <Edit2 className="w-3.5 h-3.5" />
                       </button>
@@ -258,7 +258,7 @@ export default function DailyGoals() {
       <Dialog open={showAdd} onOpenChange={o => { if (!o) { setShowAdd(false); setEditGoal(null); resetForm(); } }}>
         <DialogContent className="max-w-sm" style={{ background: "var(--panel)", borderColor: "var(--border-s)" }}>
           <DialogHeader>
-            <DialogTitle className="text-white">{editGoal ? "Edit Goal" : "New Goal"}</DialogTitle>
+            <DialogTitle className="text-[var(--text-heading)]">{editGoal ? "Edit Goal" : "New Goal"}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 pt-1">
             <div className="space-y-1.5">
@@ -284,7 +284,7 @@ export default function DailyGoals() {
               <div className="flex gap-2">
                 {ICON_OPTIONS.map(opt => (
                   <button key={opt.name} onClick={() => setNewIcon(opt.name)}
-                    className="w-9 h-9 rounded-lg flex items-center justify-center transition-all text-white"
+                    className="w-9 h-9 rounded-lg flex items-center justify-center transition-all text-[var(--text-heading)]"
                     style={{
                       background: newIcon === opt.name ? newColor + "20" : "var(--panel-hover)",
                       border: `1px solid ${newIcon === opt.name ? newColor + "50" : "var(--border-strong)"}`,
@@ -313,13 +313,13 @@ export default function DailyGoals() {
       <AlertDialog open={!!deleteId} onOpenChange={o => !o && setDeleteId(null)}>
         <AlertDialogContent style={{ background: "var(--panel)", borderColor: "var(--border-s)" }}>
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-white">Delete goal?</AlertDialogTitle>
+            <AlertDialogTitle className="text-[var(--text-heading)]">Delete goal?</AlertDialogTitle>
             <AlertDialogDescription style={{ color: "var(--text-dim)" }}>This removes the goal and its streak history.</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel style={{ background: "var(--panel-hover)", borderColor: "var(--border-strong)", color: "var(--text-secondary)" }}>Cancel</AlertDialogCancel>
             <AlertDialogAction onClick={() => { if (deleteId) { storage.setGoals(goals.filter(g => g.id !== deleteId)); toast.success("Deleted"); setDeleteId(null); } }}
-              className="bg-destructive text-white hover:bg-destructive/90">Delete</AlertDialogAction>
+              className="bg-destructive text-[var(--destructive-foreground)] hover:bg-destructive/90">Delete</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

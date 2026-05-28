@@ -50,7 +50,7 @@ function TapEdit({ value, onSave, color }: { value: number; onSave: (v: number) 
   return (
     <button onClick={() => setEditing(true)} title="Tap to edit"
       className="text-right group">
-      <p className="text-2xl font-bold text-white group-hover:opacity-80 transition-opacity">{value}</p>
+      <p className="text-2xl font-bold text-[var(--text-heading)] group-hover:opacity-80 transition-opacity">{value}</p>
     </button>
   );
 }
@@ -83,7 +83,7 @@ export default function HealthTracker() {
   return (
     <div className="space-y-8">
       <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}>
-        <h1 className="text-3xl font-bold text-white tracking-tight">Health</h1>
+        <h1 className="text-3xl font-bold text-[var(--text-heading)] tracking-tight">Health</h1>
         <p className="text-sm mt-0.5" style={{ color: "var(--text-dim)" }}>Daily metrics</p>
       </motion.div>
 
@@ -95,7 +95,7 @@ export default function HealthTracker() {
           <ChevronLeft className="w-4 h-4" />
         </button>
         <div className="text-center">
-          <p className="text-sm font-semibold text-white">
+          <p className="text-sm font-semibold text-[var(--text-heading)]">
             {isToday ? "Today" : format(selectedDate, "MMMM d")}
           </p>
           <p className="text-xs" style={{ color: "var(--text-muted)" }}>{format(selectedDate, "EEEE, yyyy")}</p>
@@ -127,7 +127,7 @@ export default function HealthTracker() {
                     <Icon className="w-4 h-4" style={{ color: m.color }} />
                   </div>
                   <div>
-                    <p className="text-sm font-semibold text-white">{m.label}</p>
+                    <p className="text-sm font-semibold text-[var(--text-heading)]">{m.label}</p>
                     <p className="text-xs" style={{ color: "var(--text-muted)" }}>/ {target} {m.unit}</p>
                   </div>
                 </div>

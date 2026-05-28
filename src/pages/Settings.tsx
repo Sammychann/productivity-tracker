@@ -31,13 +31,13 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="space-y-2">
-      <Label className="text-sm font-medium text-white/70">{label}</Label>
+      <Label className="text-sm font-medium text-[var(--text-heading)]/70">{label}</Label>
       {children}
     </div>
   );
 }
 
-const inputCls = "bg-[var(--panel-hover)] border-[var(--border-strong)] text-white placeholder:text-[var(--text-muted)] focus:border-primary/50";
+const inputCls = "bg-[var(--panel-hover)] border-[var(--border-strong)] text-[var(--text-heading)] placeholder:text-[var(--text-muted)] focus:border-primary/50";
 
 export default function Settings() {
   const targets = useHealthTargets();
@@ -150,7 +150,7 @@ export default function Settings() {
 
       {/* Account Settings */}
       <Section title="Account">
-        <Button onClick={handleLogout} variant="outline" className="w-full bg-[var(--panel-hover)] border-[var(--border-strong)] text-white hover:bg-[var(--border-strong)]">
+        <Button onClick={handleLogout} variant="outline" className="w-full bg-[var(--panel-hover)] border-[var(--border-strong)] text-[var(--text-heading)] hover:bg-[var(--border-strong)]">
           <LogOut className="w-4 h-4 mr-2" /> Log Out
         </Button>
       </Section>
@@ -168,14 +168,14 @@ export default function Settings() {
       <AlertDialog open={showReset} onOpenChange={setShowReset}>
         <AlertDialogContent style={{ background: "var(--panel)", borderColor: "var(--border-strong)" }}>
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-white">Reset all data?</AlertDialogTitle>
+            <AlertDialogTitle className="text-[var(--text-heading)]">Reset all data?</AlertDialogTitle>
             <AlertDialogDescription style={{ color: "var(--text-tertiary)" }}>
               This permanently deletes all goals, logs, and preferences.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel style={{ background: "var(--panel-hover)", borderColor: "var(--border-strong)", color: "#aaa" }}>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={reset} className="bg-destructive text-white hover:bg-destructive/90">Reset</AlertDialogAction>
+            <AlertDialogAction onClick={reset} className="bg-destructive text-[var(--destructive-foreground)] hover:bg-destructive/90">Reset</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

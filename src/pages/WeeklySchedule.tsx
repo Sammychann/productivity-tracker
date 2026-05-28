@@ -129,12 +129,12 @@ export default function WeeklySchedule() {
       <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}
         className="flex items-start justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-white tracking-tight">Schedule</h1>
+          <h1 className="text-3xl font-bold text-[var(--text-heading)] tracking-tight">Schedule</h1>
           <p className="text-sm mt-0.5" style={{ color: "var(--text-dim)" }}>Weekly training plan</p>
         </div>
         {!editing ? (
           <Button onClick={() => { setDraft({ ...schedule }); setEditing(true); setSelectedDay(null); }} size="sm"
-            variant="outline" className="gap-2 border-[var(--border-strong)] text-[var(--text-secondary)] hover:bg-white/[0.04] hover:text-white">
+            variant="outline" className="gap-2 border-[var(--border-strong)] text-[var(--text-secondary)] hover:bg-white/[0.04] hover:text-[var(--text-heading)]">
             <Pencil className="w-3.5 h-3.5" /> Edit
           </Button>
         ) : (
@@ -154,7 +154,7 @@ export default function WeeklySchedule() {
           { label: "Rest days", value: 7 - trainingDays },
         ].map(s => (
           <div key={s.label} className="px-4 py-3 rounded-xl" style={{ background: "var(--panel)", border: "1px solid var(--border-s)" }}>
-            <p className="text-2xl font-bold text-white">{s.value}</p>
+            <p className="text-2xl font-bold text-[var(--text-heading)]">{s.value}</p>
             <p className="text-[10px] font-semibold uppercase tracking-wider mt-0.5" style={{ color: "var(--text-muted)" }}>{s.label}</p>
           </div>
         ))}
@@ -207,7 +207,7 @@ export default function WeeklySchedule() {
                   <Input value={draft[day.key].label}
                     onChange={e => setDraft(d => ({ ...d, [day.key]: { ...d[day.key], label: e.target.value } }))}
                     onClick={e => e.stopPropagation()}
-                    className="flex-1 h-9 border-[var(--border-strong)] text-white text-sm"
+                    className="flex-1 h-9 border-[var(--border-strong)] text-[var(--text-heading)] text-sm"
                     style={{ background: "var(--panel-hover)" }} />
                 ) : (
                   <p className="flex-1 text-sm font-medium"
@@ -284,7 +284,7 @@ export default function WeeklySchedule() {
                                 style={{ background: "var(--panel)" }}>
                                 <div className="w-1 h-8 rounded-full shrink-0" style={{ background: color + "40" }} />
                                 <div className="flex-1 min-w-0">
-                                  <p className="text-sm font-medium text-white">{lift.name}</p>
+                                  <p className="text-sm font-medium text-[var(--text-heading)]">{lift.name}</p>
                                   {pr ? (
                                     <div className="flex items-center gap-1.5 mt-0.5">
                                       <Trophy className="w-2.5 h-2.5 shrink-0" style={{ color }} />
@@ -329,7 +329,7 @@ export default function WeeklySchedule() {
       <Dialog open={!!logLiftId} onOpenChange={o => !o && setLogLiftId(null)}>
         <DialogContent className="max-w-xs" style={{ background: "var(--panel)", borderColor: "var(--border-s)" }}>
           <DialogHeader>
-            <DialogTitle className="text-white">{logLift?.name ?? "Log session"}</DialogTitle>
+            <DialogTitle className="text-[var(--text-heading)]">{logLift?.name ?? "Log session"}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 pt-1">
             <div className="grid grid-cols-2 gap-3">
@@ -337,24 +337,24 @@ export default function WeeklySchedule() {
                 <Label className="text-sm" style={{ color: "var(--text-secondary)" }}>Weight ({unit})</Label>
                 <Input type="number" step="0.5" placeholder="80" value={logWeight}
                   onChange={e => setLogWeight(e.target.value)}
-                  className="h-11 border-[var(--border-strong)] text-white" style={{ background: "var(--panel-hover)" }} autoFocus />
+                  className="h-11 border-[var(--border-strong)] text-[var(--text-heading)]" style={{ background: "var(--panel-hover)" }} autoFocus />
               </div>
               <div className="space-y-1.5">
                 <Label className="text-sm" style={{ color: "var(--text-secondary)" }}>Reps</Label>
                 <Input type="number" placeholder="5" value={logReps}
                   onChange={e => setLogReps(e.target.value)}
-                  className="h-11 border-[var(--border-strong)] text-white" style={{ background: "var(--panel-hover)" }} />
+                  className="h-11 border-[var(--border-strong)] text-[var(--text-heading)]" style={{ background: "var(--panel-hover)" }} />
               </div>
             </div>
             <div className="space-y-1.5">
               <Label className="text-sm" style={{ color: "var(--text-secondary)" }}>Date</Label>
               <Input type="date" value={logDate} onChange={e => setLogDate(e.target.value)}
-                className="h-11 border-[var(--border-strong)] text-white" style={{ background: "var(--panel-hover)" }} />
+                className="h-11 border-[var(--border-strong)] text-[var(--text-heading)]" style={{ background: "var(--panel-hover)" }} />
             </div>
             {logWeight && logReps && (
               <div className="py-2 px-3 rounded-xl text-center" style={{ background: "var(--panel-hover)" }}>
                 <p className="text-[11px]" style={{ color: "var(--text-dim)" }}>Estimated 1RM</p>
-                <p className="text-lg font-bold text-white">
+                <p className="text-lg font-bold text-[var(--text-heading)]">
                   {estimate1RM(parseFloat(logWeight) || 0, parseInt(logReps) || 1)} {unit}
                 </p>
               </div>

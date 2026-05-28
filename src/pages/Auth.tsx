@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-const inputCls = "bg-[var(--panel-hover)] border-[var(--border-strong)] text-white placeholder:text-[var(--text-muted)] focus:border-primary/50 h-11";
+const inputCls = "bg-[var(--panel-hover)] border-[var(--border-strong)] text-[var(--text-heading)] placeholder:text-[var(--text-muted)] focus:border-primary/50 h-11";
 
 export default function Auth() {
   const [isLogin, setIsLogin] = useState(true);
@@ -50,7 +50,7 @@ export default function Auth() {
         style={{ background: "var(--panel)", border: "1px solid var(--border-s)" }}
       >
         <div className="text-center space-y-2">
-          <h1 className="text-2xl font-bold text-white tracking-tight">
+          <h1 className="text-2xl font-bold text-[var(--text-heading)] tracking-tight">
             {isLogin ? "Welcome back" : "Create account"}
           </h1>
           <p className="text-sm" style={{ color: "var(--text-tertiary)" }}>
@@ -60,7 +60,7 @@ export default function Auth() {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label className="text-sm font-medium text-white/70">Email</Label>
+            <Label className="text-sm font-medium text-[var(--text-heading)]/70">Email</Label>
             <Input 
               type="email" 
               placeholder="you@example.com" 
@@ -70,7 +70,7 @@ export default function Auth() {
             />
           </div>
           <div className="space-y-2">
-            <Label className="text-sm font-medium text-white/70">Password</Label>
+            <Label className="text-sm font-medium text-[var(--text-heading)]/70">Password</Label>
             <Input 
               type="password" 
               placeholder="••••••••" 

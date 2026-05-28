@@ -56,7 +56,7 @@ export default function TrackerDetail() {
   if (!tracker) {
     return (
       <div className="text-center py-12">
-        <p className="text-white font-bold text-xl">Module not found</p>
+        <p className="text-[var(--text-heading)] font-bold text-xl">Module not found</p>
         <Link href="/trackers">
           <Button variant="link" className="text-[var(--text-secondary)] mt-2">Go back</Button>
         </Link>
@@ -179,18 +179,18 @@ export default function TrackerDetail() {
         <div className="flex items-center gap-3">
           <Link href="/trackers">
             <button className="w-8 h-8 flex items-center justify-center rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
-              <ArrowLeft className="w-4 h-4 text-white" />
+              <ArrowLeft className="w-4 h-4 text-[var(--text-heading)]" />
             </button>
           </Link>
           <div>
-            <h1 className="text-3xl font-bold text-white tracking-tight">{tracker.name}</h1>
+            <h1 className="text-3xl font-bold text-[var(--text-heading)] tracking-tight">{tracker.name}</h1>
             <p className="text-sm mt-0.5 uppercase tracking-widest font-semibold" style={{ color: "var(--text-dim)" }}>
               {totalItems} items
             </p>
           </div>
         </div>
         <Button onClick={() => setShowAddCat(true)} size="sm" variant="outline"
-          className="gap-2 border-[var(--border-strong)] text-[var(--text-secondary)] hover:bg-white/[0.04] hover:text-white">
+          className="gap-2 border-[var(--border-strong)] text-[var(--text-secondary)] hover:bg-white/[0.04] hover:text-[var(--text-heading)]">
           <Plus className="w-4 h-4" /> Category
         </Button>
       </motion.div>
@@ -211,7 +211,7 @@ export default function TrackerDetail() {
                   <div className="w-1.5 h-8 rounded-full shrink-0" style={{ background: color }} />
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <p className="text-sm font-semibold text-white">{cat.name}</p>
+                      <p className="text-sm font-semibold text-[var(--text-heading)]">{cat.name}</p>
                       <span className="text-[10px] px-1.5 py-0.5 rounded-full font-semibold" style={{ background: color + "15", color }}>
                         {cat.items.length}
                       </span>
@@ -246,7 +246,7 @@ export default function TrackerDetail() {
                                 )}
                                 <div className="flex-1 min-w-0">
                                   <div className="flex items-center gap-2">
-                                    <p className="text-sm font-medium text-white truncate">{item.name}</p>
+                                    <p className="text-sm font-medium text-[var(--text-heading)] truncate">{item.name}</p>
                                     {rec?.url && (
                                       <a href={rec.url} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()}
                                         className="shrink-0 transition-colors hover:text-primary" style={{ color: "var(--text-dim)" }}>
@@ -294,7 +294,7 @@ export default function TrackerDetail() {
                                 <div onClick={() => setExpandedItem(isExpandedItem ? null : item.id)}
                                   className="flex items-center justify-between p-3 cursor-pointer hover:bg-white/[0.02] transition-colors">
                                   <div>
-                                    <p className="text-sm font-semibold text-white">{item.name}</p>
+                                    <p className="text-sm font-semibold text-[var(--text-heading)]">{item.name}</p>
                                     <p className="text-[10px] mt-0.5" style={{ color: "var(--text-dim)" }}>
                                       {item.records.length} logs {prRecord && <span className="ml-2 text-emerald-500 font-medium">PR: {prRecord.value1} {tracker.metric1}</span>}
                                     </p>
@@ -308,8 +308,8 @@ export default function TrackerDetail() {
                                       className="overflow-hidden bg-[#0a0a0a] border-t border-[var(--border-light)]">
                                       <div className="p-3 space-y-3">
                                         <div className="flex gap-2">
-                                          <Input type="number" placeholder={tracker.metric1 || "Val 1"} value={val1} onChange={e => setVal1(e.target.value)} className="h-9 text-xs border-[var(--border-strong)] bg-[var(--panel)] text-white" />
-                                          <Input type="number" placeholder={tracker.metric2 || "Val 2"} value={val2} onChange={e => setVal2(e.target.value)} className="h-9 text-xs border-[var(--border-strong)] bg-[var(--panel)] text-white" />
+                                          <Input type="number" placeholder={tracker.metric1 || "Val 1"} value={val1} onChange={e => setVal1(e.target.value)} className="h-9 text-xs border-[var(--border-strong)] bg-[var(--panel)] text-[var(--text-heading)]" />
+                                          <Input type="number" placeholder={tracker.metric2 || "Val 2"} value={val2} onChange={e => setVal2(e.target.value)} className="h-9 text-xs border-[var(--border-strong)] bg-[var(--panel)] text-[var(--text-heading)]" />
                                           <Button onClick={() => handleAddRecord(cat.id, item.id)} size="sm" className="h-9 px-4 bg-primary hover:bg-primary/90 text-xs">Log</Button>
                                           <Button onClick={() => handleDeleteItem(cat.id, item.id)} size="sm" variant="outline" className="h-9 w-9 p-0 border-[var(--border-strong)] hover:bg-red-500/20 text-[var(--text-secondary)] hover:text-red-500"><Trash2 className="w-3.5 h-3.5" /></Button>
                                         </div>
@@ -318,7 +318,7 @@ export default function TrackerDetail() {
                                             {[...item.records].reverse().map(rec => (
                                               <div key={rec.id} className="flex items-center justify-between py-1.5 px-2 rounded bg-[var(--panel)]">
                                                 <span className="text-[10px]" style={{ color: "var(--text-dim)" }}>{format(new Date(rec.date + "T12:00:00"), "MMM d, yyyy")}</span>
-                                                <span className="text-xs font-mono font-medium text-white">{rec.value1} {tracker.metric1} <span style={{ color: "var(--text-dim)" }}>×</span> {rec.value2} {tracker.metric2}</span>
+                                                <span className="text-xs font-mono font-medium text-[var(--text-heading)]">{rec.value1} {tracker.metric1} <span style={{ color: "var(--text-dim)" }}>×</span> {rec.value2} {tracker.metric2}</span>
                                               </div>
                                             ))}
                                           </div>
@@ -350,10 +350,10 @@ export default function TrackerDetail() {
       {/* Add Category Dialog */}
       <Dialog open={showAddCat} onOpenChange={setShowAddCat}>
         <DialogContent className="max-w-xs" style={{ background: "var(--panel)", borderColor: "var(--border-s)" }}>
-          <DialogHeader><DialogTitle className="text-white">Add Category</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle className="text-[var(--text-heading)]">Add Category</DialogTitle></DialogHeader>
           <div className="space-y-3 pt-2">
             <Input placeholder="e.g. Legs, Strings..." value={newCatName} onChange={e => setNewCatName(e.target.value)}
-              onKeyDown={e => e.key === "Enter" && handleAddCategory()} className="border-[var(--border-strong)] text-white bg-[var(--panel-hover)]" autoFocus />
+              onKeyDown={e => e.key === "Enter" && handleAddCategory()} className="border-[var(--border-strong)] text-[var(--text-heading)] bg-[var(--panel-hover)]" autoFocus />
             <Button onClick={handleAddCategory} className="w-full bg-primary hover:bg-primary/90">Add Category</Button>
           </div>
         </DialogContent>
@@ -362,12 +362,12 @@ export default function TrackerDetail() {
       {/* Add Item Dialog */}
       <Dialog open={!!showAddItem} onOpenChange={o => { if (!o) setShowAddItem(null); }}>
         <DialogContent className="max-w-xs" style={{ background: "var(--panel)", borderColor: "var(--border-s)" }}>
-          <DialogHeader><DialogTitle className="text-white">Add Item</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle className="text-[var(--text-heading)]">Add Item</DialogTitle></DialogHeader>
           <div className="space-y-3 pt-2">
             <div className="space-y-1.5">
               <Label className="text-sm" style={{ color: "var(--text-secondary)" }}>Name</Label>
               <Input placeholder="e.g. Bench Press" value={newItemName} onChange={e => setNewItemName(e.target.value)}
-                className="border-[var(--border-strong)] text-white bg-[var(--panel-hover)]" autoFocus />
+                className="border-[var(--border-strong)] text-[var(--text-heading)] bg-[var(--panel-hover)]" autoFocus />
             </div>
             
             {tracker.type === "completion" && (
@@ -391,12 +391,12 @@ export default function TrackerDetail() {
                 {tracker.hasUrl && (
                   <div className="space-y-1.5">
                     <Label className="text-sm" style={{ color: "var(--text-secondary)" }}>URL</Label>
-                    <Input placeholder="https://..." value={newUrl} onChange={e => setNewUrl(e.target.value)} className="border-[var(--border-strong)] text-white bg-[var(--panel-hover)]" />
+                    <Input placeholder="https://..." value={newUrl} onChange={e => setNewUrl(e.target.value)} className="border-[var(--border-strong)] text-[var(--text-heading)] bg-[var(--panel-hover)]" />
                   </div>
                 )}
                 <div className="space-y-1.5">
                   <Label className="text-sm" style={{ color: "var(--text-secondary)" }}>Notes</Label>
-                  <Input placeholder="Optional notes" value={newNotes} onChange={e => setNewNotes(e.target.value)} className="border-[var(--border-strong)] text-white bg-[var(--panel-hover)]" />
+                  <Input placeholder="Optional notes" value={newNotes} onChange={e => setNewNotes(e.target.value)} className="border-[var(--border-strong)] text-[var(--text-heading)] bg-[var(--panel-hover)]" />
                 </div>
               </>
             )}

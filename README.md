@@ -18,7 +18,14 @@ Simply click the link above, create an account, and start logging your workouts 
 - **📅 Weekly Schedule**: Interactive planner for your weekly workouts with customizable categories.
 - **💧 Health Tracker**: Easy logging for water, calories, protein, and sleep with progress visualizations and history charts.
 - **🏋️ Lift Tracker**: Log workouts, track personal records (PRs), and view historical charts and estimated 1RM for every custom exercise.
-- **☁️ Cloud Sync**: Seamlessly syncs your data across all your devices in real-time.
+- **☁️ Sync**: Multi-device synchronization with Supabase and robust offline-first functionality.
+
+## 📅 Changelog
+
+### May 28, 2026
+- **Floral Theme**: Added a beautiful new Light mode (White & Lavender). Switchable in Settings.
+- **Daily Notes**: Added a Daily Notes section on the Dashboard to write a quick journal entry (under 100 words).
+- **Custom Trackers System**: Rebuilt the tracker system to allow creating completely custom tracking modules (Gym, DSA, Reading, etc.) with custom metrics.
 
 ## 🛠️ Tech Stack
 

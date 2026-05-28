@@ -61,11 +61,11 @@ export default function Trackers() {
       <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}
         className="flex items-start justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-white tracking-tight">Modules</h1>
+          <h1 className="text-3xl font-bold text-[var(--text-heading)] tracking-tight">Modules</h1>
           <p className="text-sm mt-0.5" style={{ color: "var(--text-dim)" }}>Manage your trackers</p>
         </div>
         <Button onClick={() => setShowAdd(true)} size="sm" variant="outline"
-          className="gap-2 border-[var(--border-strong)] text-[var(--text-secondary)] hover:bg-white/[0.04] hover:text-white">
+          className="gap-2 border-[var(--border-strong)] text-[var(--text-secondary)] hover:bg-white/[0.04] hover:text-[var(--text-heading)]">
           <Plus className="w-4 h-4" /> Create
         </Button>
       </motion.div>
@@ -89,7 +89,7 @@ export default function Trackers() {
                       {t.type}
                     </span>
                   </div>
-                  <h3 className="text-lg font-bold text-white mb-1">{t.name}</h3>
+                  <h3 className="text-lg font-bold text-[var(--text-heading)] mb-1">{t.name}</h3>
                   <p className="text-xs" style={{ color: "var(--text-dim)" }}>
                     {t.categories.length} {t.categories.length === 1 ? "category" : "categories"}
                   </p>
@@ -136,12 +136,12 @@ export default function Trackers() {
                     {ICONS[t.icon] || ICONS.default}
                   </div>
                   <div>
-                    <h3 className="text-sm font-bold text-white leading-tight">{t.name}</h3>
+                    <h3 className="text-sm font-bold text-[var(--text-heading)] leading-tight">{t.name}</h3>
                     <p className="text-[10px] uppercase tracking-wider mt-0.5" style={{ color: "var(--text-dim)" }}>{t.type} tracker</p>
                   </div>
                 </div>
                 <Button onClick={() => toggleTracker(t.id, true)} size="sm"
-                  className="bg-white/5 hover:bg-white/10 text-white font-semibold text-xs h-8">
+                  className="bg-white/5 hover:bg-white/10 text-[var(--text-heading)] font-semibold text-xs h-8">
                   Activate
                 </Button>
               </motion.div>
@@ -154,14 +154,14 @@ export default function Trackers() {
       <Dialog open={showAdd} onOpenChange={setShowAdd}>
         <DialogContent className="max-w-xs" style={{ background: "var(--panel)", borderColor: "var(--border-s)" }}>
           <DialogHeader>
-            <DialogTitle className="text-white">Create Tracker</DialogTitle>
+            <DialogTitle className="text-[var(--text-heading)]">Create Tracker</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 pt-2">
             <div className="space-y-1.5">
               <Label className="text-sm" style={{ color: "var(--text-secondary)" }}>Name</Label>
               <Input placeholder="e.g. Running, Reading..." value={newName}
                 onChange={e => setNewName(e.target.value)}
-                className="border-[var(--border-strong)] text-white placeholder:text-[var(--text-faint)] h-11"
+                className="border-[var(--border-strong)] text-[var(--text-heading)] placeholder:text-[var(--text-faint)] h-11"
                 style={{ background: "var(--panel-hover)" }} autoFocus />
             </div>
             <div className="space-y-1.5">
@@ -173,7 +173,7 @@ export default function Trackers() {
                     background: newType === "measurement" ? "#6366f115" : "var(--panel-hover)",
                     borderColor: newType === "measurement" ? "#6366f150" : "var(--border-strong)",
                   }}>
-                  <p className="text-xs font-bold text-white mb-1">Measurement</p>
+                  <p className="text-xs font-bold text-[var(--text-heading)] mb-1">Measurement</p>
                   <p className="text-[10px]" style={{ color: "var(--text-tertiary)" }}>Track numeric values like Weight/Reps or Distance/Time</p>
                 </button>
                 <button onClick={() => setNewType("completion")}
@@ -182,7 +182,7 @@ export default function Trackers() {
                     background: newType === "completion" ? "#10b98115" : "var(--panel-hover)",
                     borderColor: newType === "completion" ? "#10b98150" : "var(--border-strong)",
                   }}>
-                  <p className="text-xs font-bold text-white mb-1">Completion</p>
+                  <p className="text-xs font-bold text-[var(--text-heading)] mb-1">Completion</p>
                   <p className="text-[10px]" style={{ color: "var(--text-tertiary)" }}>Track status, difficulty, links, or simple check-offs</p>
                 </button>
               </div>

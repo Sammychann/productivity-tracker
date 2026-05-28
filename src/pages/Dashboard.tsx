@@ -59,7 +59,7 @@ function QuickLogModal({
           style={{ background: "var(--border-light)", color: "var(--text-heading)" }}>−</button>
         <Input type="number" value={val} onChange={e => setVal(e.target.value)}
           onKeyDown={e => e.key === "Enter" && save()}
-          className="text-center text-2xl font-bold border-0 text-white"
+          className="text-center text-2xl font-bold border-0 text-[var(--text-heading)]"
           style={{ background: "var(--border-light)" }} autoFocus />
         <button onClick={() => setVal(v => String(parseFloat(v || "0") + step))}
           className="w-11 h-11 rounded-xl text-lg font-bold transition-colors"
@@ -76,7 +76,7 @@ function QuickLogModal({
     return (
       <Drawer open={open} onOpenChange={o => !o && onClose()}>
         <DrawerContent style={{ background: "var(--panel)", borderColor: "var(--border-s)" }}>
-          <DrawerHeader><DrawerTitle className="text-white">{label}</DrawerTitle></DrawerHeader>
+          <DrawerHeader><DrawerTitle className="text-[var(--text-heading)]">{label}</DrawerTitle></DrawerHeader>
           <div className="px-4 pb-8">{content}</div>
         </DrawerContent>
       </Drawer>
@@ -85,7 +85,7 @@ function QuickLogModal({
   return (
     <Dialog open={open} onOpenChange={o => !o && onClose()}>
       <DialogContent style={{ background: "var(--panel)", borderColor: "var(--border-s)" }}>
-        <DialogHeader><DialogTitle className="text-white">{label}</DialogTitle></DialogHeader>
+        <DialogHeader><DialogTitle className="text-[var(--text-heading)]">{label}</DialogTitle></DialogHeader>
         {content}
       </DialogContent>
     </Dialog>
@@ -166,7 +166,7 @@ export default function Dashboard() {
         className="flex items-start justify-between">
         <div>
           <p className="text-[13px] font-medium uppercase tracking-widest mb-1" style={{ color: "var(--text-muted)" }}>{greeting}</p>
-          <h1 className="text-3xl font-bold text-white tracking-tight">{format(selectedDate, "EEEE")}</h1>
+          <h1 className="text-3xl font-bold text-[var(--text-heading)] tracking-tight">{format(selectedDate, "EEEE")}</h1>
           <p className="text-sm mt-0.5" style={{ color: "var(--text-dim)" }}>{format(selectedDate, "MMMM d, yyyy")}</p>
         </div>
         {/* Date Navigator */}
@@ -202,7 +202,7 @@ export default function Dashboard() {
             <Zap className="w-4 h-4" style={{ color: "#818cf8" }} />
             <p className="text-[10px] font-semibold uppercase tracking-widest" style={{ color: "#818cf880" }}>{isToday ? "Today's Score" : "Score"}</p>
           </div>
-          <p className="text-4xl font-black text-white tracking-tight">{dailyScore}<span className="text-lg" style={{ color: "var(--text-dim)" }}>%</span></p>
+          <p className="text-4xl font-black text-[var(--text-heading)] tracking-tight">{dailyScore}<span className="text-lg" style={{ color: "var(--text-dim)" }}>%</span></p>
         </div>
 
         {/* Today's Workout */}
@@ -214,7 +214,7 @@ export default function Dashboard() {
             <Dumbbell className="w-4 h-4" style={{ color: "#10b98180" }} />
             <p className="text-[10px] font-semibold uppercase tracking-widest" style={{ color: "#10b98180" }}>{isToday ? "Today" : format(selectedDate, "EEEE")}</p>
           </div>
-          <p className="text-lg font-bold text-white leading-tight mt-1">{todayLabel || "Rest Day"}</p>
+          <p className="text-lg font-bold text-[var(--text-heading)] leading-tight mt-1">{todayLabel || "Rest Day"}</p>
         </div>
       </motion.div>
 
@@ -362,7 +362,7 @@ export default function Dashboard() {
                      <Activity className="w-4 h-4" style={{ color: "#22d3ee" }} />}
                     <p className="text-[10px] font-semibold uppercase tracking-widest" style={{ color: "var(--text-muted)" }}>{t.name}</p>
                   </div>
-                  <p className="text-3xl font-black text-white">{totalItems}</p>
+                  <p className="text-3xl font-black text-[var(--text-heading)]">{totalItems}</p>
                   {extraStat ? (
                     <div className="text-[10px] mt-1" style={{ color: "var(--text-dim)" }}>
                       {extraStat}

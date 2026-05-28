@@ -63,7 +63,7 @@ export default function WeightTracker() {
       <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}
         className="flex items-start justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-white tracking-tight">Weight</h1>
+          <h1 className="text-3xl font-bold text-[var(--text-heading)] tracking-tight">Weight</h1>
           <p className="text-sm mt-0.5" style={{ color: "var(--text-dim)" }}>Track your progress</p>
         </div>
         <Button onClick={() => setShowAdd(true)} size="sm" className="gap-2 bg-primary hover:bg-primary/90">
@@ -93,7 +93,7 @@ export default function WeightTracker() {
         <p className="text-sm font-medium shrink-0" style={{ color: "var(--text-dim)" }}>Goal ({unit})</p>
         <Input type="number" placeholder="e.g. 75" value={goalWeight}
           onChange={e => { setGoalWeight(e.target.value); localStorage.setItem("goal_weight", e.target.value); }}
-          className="h-9 border-[var(--border-strong)] text-white text-sm" style={{ background: "var(--panel-hover)" }} />
+          className="h-9 border-[var(--border-strong)] text-[var(--text-heading)] text-sm" style={{ background: "var(--panel-hover)" }} />
       </div>
 
       {/* Chart */}
@@ -139,7 +139,7 @@ export default function WeightTracker() {
           className="flex items-center justify-between p-5 rounded-2xl" style={{ background: "var(--panel)", border: "1px solid var(--border-s)" }}>
           <div>
             <p className="text-[11px] font-semibold uppercase tracking-widest mb-1" style={{ color: "var(--text-muted)" }}>BMI</p>
-            <p className="text-3xl font-bold text-white">{bmiVal.toFixed(1)}</p>
+            <p className="text-3xl font-bold text-[var(--text-heading)]">{bmiVal.toFixed(1)}</p>
           </div>
           <span className="text-sm font-semibold px-4 py-2 rounded-xl" style={{ background: bmiInfo.color + "15", color: bmiInfo.color }}>
             {bmiInfo.label}
@@ -157,7 +157,7 @@ export default function WeightTracker() {
                 className="flex items-center gap-4 px-4 py-3 transition-colors hover:bg-white/[0.02]"
                 style={{ background: "var(--panel)", borderTop: i > 0 ? "1px solid var(--border-light)" : "none" }}>
                 <div className="flex-1">
-                  <p className="text-sm font-semibold text-white">{log.weight} <span style={{ color: "var(--text-muted)" }}>{unit}</span></p>
+                  <p className="text-sm font-semibold text-[var(--text-heading)]">{log.weight} <span style={{ color: "var(--text-muted)" }}>{unit}</span></p>
                   <p className="text-[11px] mt-0.5" style={{ color: "var(--text-muted)" }}>{format(parseISO(log.date), "EEEE, MMM d")}</p>
                 </div>
                 <button onClick={() => { storage.setWeightLogs(storage.getWeightLogs().filter(l => l.date !== log.date)); toast.success("Deleted"); }}
@@ -175,13 +175,13 @@ export default function WeightTracker() {
       <Dialog open={showAdd} onOpenChange={o => !o && setShowAdd(false)}>
         <DialogContent style={{ background: "var(--panel)", borderColor: "var(--border-s)" }} className="max-w-xs">
           <DialogHeader>
-            <DialogTitle className="text-white">Log Weight</DialogTitle>
+            <DialogTitle className="text-[var(--text-heading)]">Log Weight</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 pt-1">
             <Input type="number" step="0.1" placeholder={`Weight in ${unit}`} value={newWeight}
               onChange={e => setNewWeight(e.target.value)}
               onKeyDown={e => e.key === "Enter" && handleAdd()}
-              className="text-center text-2xl font-bold border-[var(--border-strong)] text-white h-14"
+              className="text-center text-2xl font-bold border-[var(--border-strong)] text-[var(--text-heading)] h-14"
               style={{ background: "var(--panel-hover)" }} autoFocus />
             <Button onClick={handleAdd} disabled={!newWeight} className="w-full bg-primary hover:bg-primary/90">
               Save

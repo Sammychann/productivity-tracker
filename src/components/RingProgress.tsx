@@ -51,7 +51,7 @@ export function RingProgress({
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
         {icon && <div className="mb-0.5 opacity-50">{icon}</div>}
-        <span className="text-sm font-bold text-white leading-none">{value}</span>
+        <span className="text-sm font-bold text-[var(--text-heading)] leading-none">{value}</span>
         {unit && <span className="text-[9px] text-[#444] mt-0.5">{unit}</span>}
       </div>
     </div>

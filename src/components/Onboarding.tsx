@@ -9,7 +9,7 @@ import { storage, DEFAULT_SCHEDULE } from "@/lib/storage";
 const DAYS = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"] as const;
 const DAY_LABELS: Record<string, string> = { mon: "Mon", tue: "Tue", wed: "Wed", thu: "Thu", fri: "Fri", sat: "Sat", sun: "Sun" };
 
-const inputCls = "border-[var(--border-strong)] text-white placeholder:text-[var(--text-faint)] focus:border-primary/50 h-11";
+const inputCls = "border-[var(--border-strong)] text-[var(--text-heading)] placeholder:text-[var(--text-faint)] focus:border-primary/50 h-11";
 const inputStyle = { background: "var(--panel-hover)" };
 
 export function Onboarding({ onComplete }: { onComplete: () => void }) {
@@ -57,7 +57,7 @@ export function Onboarding({ onComplete }: { onComplete: () => void }) {
           <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center mb-4">
             {(() => { const Icon = steps[step].icon; return <Icon className="w-5 h-5 text-primary" />; })()}
           </div>
-          <h2 className="text-2xl font-bold text-white tracking-tight">{steps[step].title}</h2>
+          <h2 className="text-2xl font-bold text-[var(--text-heading)] tracking-tight">{steps[step].title}</h2>
           <p className="text-sm mt-1" style={{ color: "var(--text-dim)" }}>{steps[step].sub}</p>
         </div>
 
@@ -116,7 +116,7 @@ export function Onboarding({ onComplete }: { onComplete: () => void }) {
                 <div key={day} className="flex items-center gap-3">
                   <span className="w-9 text-xs font-bold uppercase shrink-0" style={{ color: "var(--text-muted)" }}>{DAY_LABELS[day]}</span>
                   <Input value={schedule[day].label} onChange={e => setSchedule(s => ({ ...s, [day]: { ...s[day], label: e.target.value } }))}
-                    className="flex-1 h-9 border-[var(--border-strong)] text-white text-sm" style={{ background: "var(--panel-hover)" }} />
+                    className="flex-1 h-9 border-[var(--border-strong)] text-[var(--text-heading)] text-sm" style={{ background: "var(--panel-hover)" }} />
                 </div>
               ))}
             </motion.div>
