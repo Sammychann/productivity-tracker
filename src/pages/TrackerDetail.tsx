@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { format } from "date-fns";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus, Trash2, ChevronDown, ArrowLeft, ExternalLink, Activity } from "lucide-react";
+import { Plus, Trash2, ChevronDown, ArrowLeft, ExternalLink, MoveRight, Pencil } from "lucide-react";
 import { storage, type TrackerSection, type TrackerRecord, type TrackerItem } from "@/lib/storage";
 import { useTrackers } from "@/hooks/use-storage";
 import { Button } from "@/components/ui/button";
@@ -40,6 +40,12 @@ export default function TrackerDetail() {
 
   const [showAddItem, setShowAddItem] = useState<string | null>(null); // categoryId
   const [newItemName, setNewItemName] = useState("");
+
+  const [editCatId, setEditCatId] = useState<string | null>(null);
+  const [editCatName, setEditCatName] = useState("");
+
+  const [moveItem, setMoveItem] = useState<{ catId: string, itemId: string, name: string } | null>(null);
+  const [destCatId, setDestCatId] = useState<string>("");
 
   // For Completion type (Adding a record immediately implies adding an item in DSA)
   // But wait, our unified schema has Item -> Records.
@@ -170,6 +176,60 @@ export default function TrackerDetail() {
     toast.success("Category deleted");
   };
 
+  const handleRenameCategory = () => {
+    if (!editCatName.trim() || !editCatId) return;
+    const update = trackers.map(t => {
+      if (t.id === tracker.id) {
+        return {
+          ...t, categories: t.categories.map(c => c.id === editCatId ? { ...c, name: editCatName.trim() } : c)
+        };
+      }
+      return t;
+    });
+    storage.setTrackers(update);
+    toast.success("Category renamed");
+    setEditCatId(null);
+  };
+
+  const handleMoveItem = () => {
+    if (!moveItem || !destCatId) return;
+    const { catId: srcCatId, itemId } = moveItem;
+
+    const update = trackers.map(t => {
+      if (t.id === tracker.id) {
+        let itemToMove: TrackerItem | null = null;
+        
+        // Find the item
+        t.categories.forEach(c => {
+          if (c.id === srcCatId) {
+            itemToMove = c.items.find(i => i.id === itemId) || null;
+          }
+        });
+
+        if (!itemToMove) return t;
+
+        // Remove from source, add to dest
+        return {
+          ...t, categories: t.categories.map(c => {
+            if (c.id === srcCatId) {
+              return { ...c, items: c.items.filter(i => i.id !== itemId) };
+            }
+            if (c.id === destCatId) {
+              return { ...c, items: [...c.items, itemToMove!] };
+            }
+            return c;
+          })
+        };
+      }
+      return t;
+    });
+
+    storage.setTrackers(update);
+    toast.success("Item moved");
+    setMoveItem(null);
+    setDestCatId("");
+  };
+
   const totalItems = tracker.categories.reduce((s, c) => s + c.items.length, 0);
 
   return (
@@ -271,6 +331,11 @@ export default function TrackerDetail() {
                                     {rec.status}
                                   </span>
                                 )}
+                                <button onClick={() => setMoveItem({ catId: cat.id, itemId: item.id, name: item.name })}
+                                  className="w-6 h-6 rounded flex items-center justify-center transition-colors hover:text-blue-500 shrink-0"
+                                  style={{ color: "var(--text-ghost)" }}>
+                                  <MoveRight className="w-3 h-3" />
+                                </button>
                                 <button onClick={() => handleDeleteItem(cat.id, item.id)}
                                   className="w-6 h-6 rounded flex items-center justify-center transition-colors hover:text-red-500 shrink-0"
                                   style={{ color: "var(--text-ghost)" }}>
@@ -311,6 +376,7 @@ export default function TrackerDetail() {
                                           <Input type="number" placeholder={tracker.metric1 || "Val 1"} value={val1} onChange={e => setVal1(e.target.value)} className="h-9 text-xs border-[var(--border-strong)] bg-[var(--panel)] text-[var(--text-heading)]" />
                                           <Input type="number" placeholder={tracker.metric2 || "Val 2"} value={val2} onChange={e => setVal2(e.target.value)} className="h-9 text-xs border-[var(--border-strong)] bg-[var(--panel)] text-[var(--text-heading)]" />
                                           <Button onClick={() => handleAddRecord(cat.id, item.id)} size="sm" className="h-9 px-4 bg-primary hover:bg-primary/90 text-xs">Log</Button>
+                                          <Button onClick={() => setMoveItem({ catId: cat.id, itemId: item.id, name: item.name })} size="sm" variant="outline" className="h-9 w-9 p-0 border-[var(--border-strong)] hover:bg-blue-500/20 text-[var(--text-secondary)] hover:text-blue-500"><MoveRight className="w-3.5 h-3.5" /></Button>
                                           <Button onClick={() => handleDeleteItem(cat.id, item.id)} size="sm" variant="outline" className="h-9 w-9 p-0 border-[var(--border-strong)] hover:bg-red-500/20 text-[var(--text-secondary)] hover:text-red-500"><Trash2 className="w-3.5 h-3.5" /></Button>
                                         </div>
                                         {item.records.length > 0 && (
@@ -333,7 +399,10 @@ export default function TrackerDetail() {
                         </div>
                       )}
 
-                      <div className="px-4 pb-3 flex justify-end">
+                      <div className="px-4 pb-3 flex justify-end gap-3">
+                        <button onClick={() => { setEditCatId(cat.id); setEditCatName(cat.name); }}
+                          className="text-[10px] font-medium px-2 py-1 rounded transition-colors hover:text-blue-500"
+                          style={{ color: "var(--text-faint)" }}>Rename category</button>
                         <button onClick={() => handleDeleteCategory(cat.id)}
                           className="text-[10px] font-medium px-2 py-1 rounded transition-colors hover:text-red-500"
                           style={{ color: "var(--text-faint)" }}>Delete category</button>
@@ -403,6 +472,47 @@ export default function TrackerDetail() {
 
             <Button onClick={handleAddItem} disabled={!newItemName.trim()} className="w-full bg-primary hover:bg-primary/90 mt-2">
               Add
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Rename Category Dialog */}
+      <Dialog open={!!editCatId} onOpenChange={o => { if (!o) setEditCatId(null); }}>
+        <DialogContent className="max-w-xs" style={{ background: "var(--panel)", borderColor: "var(--border-s)" }}>
+          <DialogHeader><DialogTitle className="text-[var(--text-heading)]">Rename Category</DialogTitle></DialogHeader>
+          <div className="space-y-3 pt-2">
+            <Input value={editCatName} onChange={e => setEditCatName(e.target.value)}
+              onKeyDown={e => e.key === "Enter" && handleRenameCategory()} className="border-[var(--border-strong)] text-[var(--text-heading)] bg-[var(--panel-hover)]" autoFocus />
+            <Button onClick={handleRenameCategory} className="w-full bg-primary hover:bg-primary/90">Rename</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Move Item Dialog */}
+      <Dialog open={!!moveItem} onOpenChange={o => { if (!o) { setMoveItem(null); setDestCatId(""); } }}>
+        <DialogContent className="max-w-xs" style={{ background: "var(--panel)", borderColor: "var(--border-s)" }}>
+          <DialogHeader><DialogTitle className="text-[var(--text-heading)]">Move {moveItem?.name}</DialogTitle></DialogHeader>
+          <div className="space-y-3 pt-2">
+            <Label className="text-sm" style={{ color: "var(--text-secondary)" }}>Move to category</Label>
+            <div className="space-y-2 max-h-48 overflow-y-auto pr-2">
+              {tracker.categories.filter(c => c.id !== moveItem?.catId).map(c => (
+                <button key={c.id} onClick={() => setDestCatId(c.id)}
+                  className="w-full flex items-center justify-between p-3 rounded-xl transition-all"
+                  style={{
+                    background: destCatId === c.id ? "var(--primary)/10" : "var(--panel-hover)",
+                    border: `1px solid ${destCatId === c.id ? "var(--primary)/40" : "var(--border-strong)"}`,
+                    color: destCatId === c.id ? "var(--primary)" : "var(--text-muted)",
+                  }}>
+                  <span className="text-sm font-medium">{c.name}</span>
+                </button>
+              ))}
+              {tracker.categories.filter(c => c.id !== moveItem?.catId).length === 0 && (
+                <p className="text-xs italic" style={{ color: "var(--text-faint)" }}>No other categories exist.</p>
+              )}
+            </div>
+            <Button onClick={handleMoveItem} disabled={!destCatId} className="w-full bg-primary hover:bg-primary/90 mt-2">
+              Move
             </Button>
           </div>
         </DialogContent>
